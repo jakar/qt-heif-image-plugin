@@ -32,7 +32,7 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Og")
 #
 
 # qt
-find_package(Qt5 COMPONENTS Core Gui Widgets REQUIRED)
+find_package(Qt5 COMPONENTS Core Gui REQUIRED)
 add_definitions(-DQT_NO_KEYWORDS)
 set(CMAKE_AUTOMOC ON)
 
@@ -100,6 +100,6 @@ add_library(heifimageplugin MODULE ${sources})
 target_link_libraries(
   heifimageplugin
   PRIVATE
-  Qt5::Widgets
+  Qt5::Gui
   PkgConfig::libheif
 )
