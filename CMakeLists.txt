@@ -70,9 +70,12 @@ if (${enable_log_debug})
 endif ()
 
 if (enable_log)
-  include_directories("${PROJECT_SOURCE_DIR}/thirdparty/spdlog/include")
-  add_definitions(-DHEIFIMAGEPLUGIN_ENABLE_LOGGING)
+  find_package(Boost REQUIRED)
+  include_directories(${Boost_INCLUDE_DIRS})
 
+  include_directories("${PROJECT_SOURCE_DIR}/thirdparty/spdlog/include")
+
+  add_definitions(-DHEIFIMAGEPLUGIN_ENABLE_LOGGING)
   if (${enable_log_trace})
     add_definitions(-DHEIFIMAGEPLUGIN_ENABLE_LOGGING_TRACE)
   elseif (${enable_log_debug})

@@ -27,6 +27,7 @@
 
 #   include <spdlog/spdlog.h>
 #   include <spdlog/fmt/ostr.h>
+#   include <boost/current_function.hpp>
 
 #   define HEIFIMAGEPLUGIN_LOG_DECLARE(logger) \
       std::shared_ptr<spdlog::logger> logger
@@ -162,7 +163,7 @@ namespace heifimageplugin::log
 #   define HEIFIMAGEPLUGIN_TRACE(logger, ...) \
       ::heifimageplugin::log::trace( \
         logger, \
-        "[" + std::string(__PRETTY_FUNCTION__) + "] " \
+        "[" + std::string(BOOST_CURRENT_FUNCTION) + "] " \
         "[" __FILE__ ":" SPDLOG_STR_HELPER(__LINE__) "] " \
         __VA_ARGS__)
 # else
