@@ -28,33 +28,24 @@
 #   include <spdlog/spdlog.h>
 #   include <spdlog/fmt/ostr.h>
 
-#   ifndef HEIFIMAGEPLUGIN_LOGGING_LEVEL
-#     if defined(HEIFIMAGEPLUGIN_ENABLE_LOGGING_TRACE)
-#       define HEIFIMAGEPLUGIN_LOGGING_LEVEL spdlog::level::trace
-#     elif defined(HEIFIMAGEPLUGIN_ENABLE_LOGGING_DEBUG)
-#       define HEIFIMAGEPLUGIN_LOGGING_LEVEL spdlog::level::debug
-#     else
-#       define HEIFIMAGEPLUGIN_LOGGING_LEVEL spdlog::level::info
-#     endif
-#   endif
+#   define HEIFIMAGEPLUGIN_LOG_DECLARE(logger) \
+      std::shared_ptr<spdlog::logger> logger
 
-#   define HEIFIMAGEPLUGIN_LOG_DECLARE(var_name) \
-      std::shared_ptr<spdlog::logger> var_name
-
-#   define HEIFIMAGEPLUGIN_LOG_INIT(var_name, log_name) \
-      var_name = spdlog::stdout_color_mt(log_name); \
-      var_name->set_level(HEIFIMAGEPLUGIN_LOGGING_LEVEL); \
-      var_name->set_pattern("%^[%n] [%l] %v%$")
+#   define HEIFIMAGEPLUGIN_LOG_INIT(logger) \
+      logger = spdlog::stdout_color_mt(\
+        ::heifimageplugin::log::loggerName.data()); \
+      logger->set_level(::heifimageplugin::log::visibleLevel); \
+      logger->set_pattern(::heifimageplugin::log::pattern.data())
 
 #   define HEIFIMAGEPLUGIN_LOG_DO(expr) expr
 
 # else
 
-#   define HEIFIMAGEPLUGIN_LOG_DECLARE(var_name) \
-      bool var_name = false
+#   define HEIFIMAGEPLUGIN_LOG_DECLARE(logger) \
+      bool logger = false
 
-#   define HEIFIMAGEPLUGIN_LOG_INIT(var_name, log_name) \
-      var_name = true
+#   define HEIFIMAGEPLUGIN_LOG_INIT(logger) \
+      logger = true
 
 #   define HEIFIMAGEPLUGIN_LOG_DO(expr)
 
@@ -63,10 +54,16 @@
 namespace heifimageplugin::log
 {
 # ifdef HEIFIMAGEPLUGIN_ENABLE_LOGGING
+  using namespace std::literals;
+
   using LoggerPtr = std::shared_ptr<spdlog::logger>;
   using Level = spdlog::level::level_enum;
+
+  constexpr std::string_view loggerName = "heifimageplugin"sv;
+  constexpr std::string_view pattern = "%^[%n] [%l] %v%$"sv;
 # else
   using LoggerPtr = bool;
+
   enum class Level
   {
     trace = 0,
@@ -77,6 +74,14 @@ namespace heifimageplugin::log
     critical = 5,
     off = 6
   };
+# endif
+
+# if defined(HEIFIMAGEPLUGIN_ENABLE_LOGGING_TRACE)
+  constexpr Level visibleLevel = Level::trace;
+# elif defined(HEIFIMAGEPLUGIN_ENABLE_LOGGING_DEBUG)
+  constexpr Level visibleLevel = Level::debug;
+# else
+  constexpr Level visibleLevel = Level::info;
 # endif
 
   template<class A>
@@ -92,70 +97,64 @@ namespace heifimageplugin::log
     }
   }
 
-  template<class L, class... As>
-  void log([[maybe_unused]] L&& logger,
-           [[maybe_unused]] Level level,
-           [[maybe_unused]] std::string_view const message,
+  template<class... As>
+  void log([[maybe_unused]] Level level,
+           [[maybe_unused]] LoggerPtr const& logger,
+           [[maybe_unused]] std::string_view const& message,
            [[maybe_unused]] As&&... args)
   {
     HEIFIMAGEPLUGIN_LOG_DO(
-      std::forward<L>(logger)->log(level, message.data(),
-                                   convertArg(std::forward<As>(args))...);
+      logger->log(level, message.data(),
+                  convertArg(std::forward<As>(args))...);
     );
   }
 
-  template<class L, class... As>
-  void log([[maybe_unused]] L&& logger,
-           [[maybe_unused]] Level level,
-           [[maybe_unused]] char const* message,
+  template<class... As>
+  void log([[maybe_unused]] Level level,
+           [[maybe_unused]] std::string_view const& message,
            [[maybe_unused]] As&&... args)
   {
     HEIFIMAGEPLUGIN_LOG_DO(
-      std::forward<L>(logger)->log(level, message,
-                                   convertArg(std::forward<As>(args))...);
+      auto logger = spdlog::get(loggerName.data());
+      if (logger)
+        log(level, logger, message, std::forward<As>(args)...);
     );
   }
 
-  template<class L, class M, class... As>
-  void trace(L&& logger, M&& message, As&&... args)
+  template<class... As>
+  void trace(As&&... args)
   {
-    log(std::forward<L>(logger), Level::trace,
-        std::forward<M>(message), std::forward<As>(args)...);
+    log(Level::trace, std::forward<As>(args)...);
   }
 
-  template<class L, class M, class... As>
-  void debug(L&& logger, M&& message, As&&... args)
+  template<class... As>
+  void debug(As&&... args)
   {
-    log(std::forward<L>(logger), Level::debug,
-        std::forward<M>(message), std::forward<As>(args)...);
+    log(Level::debug, std::forward<As>(args)...);
   }
 
-  template<class L, class M, class... As>
-  void info(L&& logger, M&& message, As&&... args)
+  template<class... As>
+  void info(As&&... args)
   {
-    log(std::forward<L>(logger), Level::info,
-        std::forward<M>(message), std::forward<As>(args)...);
+    log(Level::info, std::forward<As>(args)...);
   }
 
-  template<class L, class M, class... As>
-  void warn(L&& logger, M&& message, As&&... args)
+  template<class... As>
+  void warn(As&&... args)
   {
-    log(std::forward<L>(logger), Level::warn,
-        std::forward<M>(message), std::forward<As>(args)...);
+    log(Level::warn, std::forward<As>(args)...);
   }
 
-  template<class L, class M, class... As>
-  void error(L&& logger, M&& message, As&&... args)
+  template<class... As>
+  void error(As&&... args)
   {
-    log(std::forward<L>(logger), Level::err,
-        std::forward<M>(message), std::forward<As>(args)...);
+    log(Level::err, std::forward<As>(args)...);
   }
 
-  template<class L, class M, class... As>
-  void critical(L&& logger, M&& message, As&&... args)
+  template<class... As>
+  void critical(As&&... args)
   {
-    log(std::forward<L>(logger), Level::critical,
-        std::forward<M>(message), std::forward<As>(args)...);
+    log(Level::critical, std::forward<As>(args)...);
   }
 }
 

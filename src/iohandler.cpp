@@ -162,13 +162,8 @@ namespace heifimageplugin
 
       *qimage = QImage(
         dataCopy, width, height, stride, QImage::Format_RGBA8888,
-        [](void* d)
-        {
-          HEIFIMAGEPLUGIN_LOG_DO(
-            auto log = spdlog::get("heifimageplugin");
-            if (log)
-              log->debug("deleting image data...");
-          );
+        [](void* d) {
+          HEIFIMAGEPLUGIN_DEBUG("deleting image data...");
           delete[] static_cast<uint8_t*>(d);
         }
       );

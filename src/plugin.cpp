@@ -10,7 +10,7 @@ namespace heifimageplugin
   :
     QImageIOPlugin(parent_)
   {
-    HEIFIMAGEPLUGIN_LOG_INIT(_log, "heifimageplugin");
+    HEIFIMAGEPLUGIN_LOG_INIT(_log);
     HEIFIMAGEPLUGIN_TRACE(_log);
   }
 
