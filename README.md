@@ -1,4 +1,4 @@
-# heifimageplugin: Qt Image Plugin for HEIF
+# heifimageplugin: HEIF Image Plugin for Qt
 This is a work in progress.
 
 ## Dependencies
