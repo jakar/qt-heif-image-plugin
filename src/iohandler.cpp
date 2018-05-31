@@ -97,7 +97,7 @@ namespace heifimageplugin
     HEIFIMAGEPLUGIN_TRACE(_log);
     updateDevice();
 
-    if (_context)
+    if (_context || !device())
       return;
 
     HEIFIMAGEPLUGIN_DEBUG(_log, "loading image data...");
