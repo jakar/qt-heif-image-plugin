@@ -46,11 +46,16 @@ namespace heifimageplugin
     HEIFIMAGEPLUGIN_TRACE(log);
 
     // logic taken from qt macheif plugin
-    auto header = device.peek(12);
-    if (header.size() != 12)
-      return false;
+    constexpr int headerSize = 12;
+    auto header = device.peek(headerSize);
 
-    std::string_view hv(header.data(), 12);
+    if (header.size() != headerSize)
+    {
+      HEIFIMAGEPLUGIN_DEBUG(log, "could not read header");
+      return false;
+    }
+
+    std::string_view hv(header.data(), headerSize);
     auto w1 = hv.substr(4, 4);
     auto w2 = hv.substr(8, 4);
 
