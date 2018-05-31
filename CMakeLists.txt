@@ -38,7 +38,7 @@ set(CMAKE_AUTOMOC ON)
 
 # libheif
 find_package(PkgConfig)
-pkg_check_modules(libheif REQUIRED IMPORTED_TARGET libheif)
+pkg_check_modules(libheif REQUIRED IMPORTED_TARGET libheif>=1.2)
 
 #
 # logging
