@@ -3,8 +3,8 @@ This is a work in progress.
 
 ## Dependencies
 Required:
-* Qt
-* libheif
+* [Qt](https://www.qt.io/)
+* [libheif](https://github.com/strukturag/libheif)
 
-To enable logging:
-* spdlog
+Only if logging is enabled:
+* [spdlog](https://github.com/gabime/spdlog)
