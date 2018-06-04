@@ -1,35 +1,28 @@
-#ifndef HEIFIMAGEPLUGIN_PLUGIN_H_
-#define HEIFIMAGEPLUGIN_PLUGIN_H_
-
-#include "logging.h"
+#ifndef HEIF_IMAGE_PLUGIN_PLUGIN_H_
+#define HEIF_IMAGE_PLUGIN_PLUGIN_H_
 
 #include <QImageIOPlugin>
 
-namespace heifimageplugin
-{
-  class Plugin : public QImageIOPlugin
-  {
-    Q_OBJECT;
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QImageIOHandlerFactoryInterface"
-                      FILE "heif.json");
+namespace heif_image_plugin {
 
-   public:
+class Plugin : public QImageIOPlugin {
+  Q_OBJECT;
+  Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QImageIOHandlerFactoryInterface"
+                    FILE "heif.json");
 
-    Plugin(QObject* parent_ = nullptr);
+ public:
+  Plugin(QObject* parent_ = nullptr);
+  virtual ~Plugin();
 
-    virtual ~Plugin();
+  Capabilities capabilities(QIODevice* device,
+                            const QByteArray& format) const override;
 
-    Capabilities capabilities(QIODevice* device,
-                              QByteArray const& format) const override;
+  QImageIOHandler* create(QIODevice* device,
+                          const QByteArray& format = QByteArray()) const override;
 
-    QImageIOHandler* create(
-      QIODevice* device,
-      QByteArray const& format = QByteArray()) const override;
+ private:
+};
 
-   private:
+}  // namespace heif_image_plugin
 
-    log::LoggerPtr _log;
-  };
-}
-
-#endif // HEIFIMAGEPLUGIN_PLUGIN_H_
+#endif  // HEIF_IMAGE_PLUGIN_PLUGIN_H_

@@ -2,56 +2,44 @@
 
 #include "iohandler.h"
 
-#include <iostream>
+namespace heif_image_plugin {
 
-namespace heifimageplugin
-{
-  Plugin::Plugin(QObject* parent_)
-  :
-    QImageIOPlugin(parent_)
-  {
-    HEIFIMAGEPLUGIN_LOG_INIT(_log);
-    HEIFIMAGEPLUGIN_TRACE(_log);
-  }
+Plugin::Plugin(QObject* parent_) : QImageIOPlugin(parent_) {
+}
 
-  Plugin::~Plugin()
-  {
-    HEIFIMAGEPLUGIN_TRACE(_log);
-  }
+Plugin::~Plugin() {
+}
 
-  Plugin::Capabilities Plugin::capabilities(QIODevice* device,
-                                            QByteArray const& format) const
-  {
-    HEIFIMAGEPLUGIN_TRACE(_log, "device: {}, format: {}",
-                          device, format.toStdString());
+Plugin::Capabilities Plugin::capabilities(QIODevice* device,
+                                          const QByteArray& format) const {
 
-    bool formatOK = (format == "heic" || format == "heif");
+  const bool formatOK = (format == "heic" || format == "heif");
 
-    if (!formatOK && !format.isEmpty())
-      return {};
-
-    if (!device)
-    {
-      if (formatOK)
-        return CanRead;
-      else
-        return {};
-    }
-
-    if (device->isReadable() && IOHandler::canReadFrom(*device, _log))
-      return CanRead;
-
+  if (!formatOK && !format.isEmpty()) {
     return {};
   }
 
-  QImageIOHandler* Plugin::create(QIODevice* device,
-                                  QByteArray const& format) const
-  {
-    HEIFIMAGEPLUGIN_TRACE(_log);
-
-    IOHandler* ioHandler = new IOHandler(_log);
-    ioHandler->setDevice(device);
-    ioHandler->setFormat(format);
-    return ioHandler;
+  if (device == nullptr) {
+    if (formatOK) {
+      return CanRead;
+    } else {
+      return {};
+    }
   }
+
+  if (device->isReadable() && IOHandler::canReadFrom(*device)) {
+    return CanRead;
+  }
+
+  return {};
 }
+
+QImageIOHandler* Plugin::create(QIODevice* device,
+                                const QByteArray& format) const {
+  IOHandler* ioHandler = new IOHandler();
+  ioHandler->setDevice(device);
+  ioHandler->setFormat(format);
+  return ioHandler;
+}
+
+}  // namespace heif_image_plugin

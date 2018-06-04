@@ -1,12 +1,12 @@
 #
-# heifimageplugin listfile
+# heif_image_plugin listfile
 #
 
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.2)
 
 project(heifimageplugin)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
@@ -41,49 +41,6 @@ find_package(PkgConfig)
 pkg_check_modules(libheif REQUIRED IMPORTED_TARGET libheif>=1.2)
 
 #
-# logging
-#
-
-set(
-  HEIFIMAGEPLUGIN_ENABLE_LOGGING OFF
-  CACHE BOOL "Enable logging"
-)
-set(
-  HEIFIMAGEPLUGIN_ENABLE_LOGGING_DEBUG OFF
-  CACHE BOOL "Enable logging: debug level"
-)
-set(
-  HEIFIMAGEPLUGIN_ENABLE_LOGGING_TRACE OFF
-  CACHE BOOL "Enable logging: trace level"
-)
-
-set(enable_log ${HEIFIMAGEPLUGIN_ENABLE_LOGGING})
-set(enable_log_debug ${HEIFIMAGEPLUGIN_ENABLE_LOGGING_DEBUG})
-set(enable_log_trace ${HEIFIMAGEPLUGIN_ENABLE_LOGGING_TRACE})
-
-if (${enable_log_trace})
-  set(enable_log_debug ON)
-endif ()
-
-if (${enable_log_debug})
-  set(enable_log ON)
-endif ()
-
-if (enable_log)
-  find_package(Boost REQUIRED)
-  include_directories(${Boost_INCLUDE_DIRS})
-
-  include_directories("${PROJECT_SOURCE_DIR}/thirdparty/spdlog/include")
-
-  add_definitions(-DHEIFIMAGEPLUGIN_ENABLE_LOGGING)
-  if (${enable_log_trace})
-    add_definitions(-DHEIFIMAGEPLUGIN_ENABLE_LOGGING_TRACE)
-  elseif (${enable_log_debug})
-    add_definitions(-DHEIFIMAGEPLUGIN_ENABLE_LOGGING_DEBUG)
-  endif ()
-endif ()
-
-#
 # project source
 #
 
@@ -103,3 +60,8 @@ target_link_libraries(
   Qt5::Gui
   PkgConfig::libheif
 )
+
+message("cmake library path: ${CMAKE_LIBRARY_PATH}")
+
+install(TARGETS heifimageplugin
+        DESTINATION ${CMAKE_LIBRARY_PATH}/qt5/plugins/imageformats)

@@ -1,208 +1,152 @@
 #include "iohandler.h"
 
-#include "assertion.h"
-#include "logging.h"
-
+#include <algorithm>
+#include <cstdint>
+#include <iostream>
+#include <memory>
 #include <libheif/heif_cxx.h>
-
+#include <QDebug>
 #include <QImage>
 #include <QSize>
 #include <QVariant>
 
-#include <algorithm>
-#include <cstdint>
-#include <iostream>
-#include <string_view>
+namespace heif_image_plugin {
 
-namespace
-{
-  using namespace std::literals;
+IOHandler::IOHandler() : QImageIOHandler() {
 }
 
-namespace heifimageplugin
-{
-  IOHandler::IOHandler(log::LoggerPtr log_)
-  :
-    QImageIOHandler(),
-    _log(log_)
-  {
-    HEIFIMAGEPLUGIN_ASSERT(_log);
-    HEIFIMAGEPLUGIN_TRACE(_log);
+IOHandler::~IOHandler() {
+}
+
+//
+// Peeking
+//
+
+bool IOHandler::canReadFrom(QIODevice& device) {
+  // logic taken from qt macheif plugin
+  constexpr int kHeaderSize = 12;
+  QByteArray header = device.peek(kHeaderSize);
+
+  if (header.size() != kHeaderSize) {
+    qWarning() << "could not read header";
+    return false;
   }
 
-  IOHandler::~IOHandler()
-  {
-    HEIFIMAGEPLUGIN_TRACE(_log);
+  const QByteArray w1 = header.mid(0, 4);
+  const QByteArray w2 = header.mid(4, 4);
+
+  return w1 == "ftyp" && (w2 == "heic" || w2 == "heix" || w2 == "mifi");
+}
+
+bool IOHandler::canRead() const {
+  if (device() && canReadFrom(*device())) {
+    setFormat("heic");  // bastardized const
+    return true;
   }
 
-  //
-  // Peeking
-  //
+  return false;
+}
 
-  bool IOHandler::canReadFrom(QIODevice& device,
-                              log::LoggerPtr log [[maybe_unused]])
-  {
-    HEIFIMAGEPLUGIN_ASSERT(log);
-    HEIFIMAGEPLUGIN_TRACE(log);
+//
+// Reading
+//
 
-    // logic taken from qt macheif plugin
-    constexpr int headerSize = 12;
-    auto header = device.peek(headerSize);
+void IOHandler::updateDevice() {
+  if (!device()) {
+    qWarning() << "device is null";
+    Q_ASSERT(context_ == nullptr);
+  }
 
-    if (header.size() != headerSize)
-    {
-      HEIFIMAGEPLUGIN_DEBUG(log, "could not read header");
+  if (device() != device_) {
+    device_ = device();
+    context_.reset();
+  }
+}
+
+void IOHandler::loadContext() {
+  updateDevice();
+
+  if (context_ || !device()) {
+    return;
+  }
+
+  auto fileData = device()->readAll();
+
+  if (fileData.isEmpty()) {
+    qWarning() << "failed to read file data";
+    return;
+  }
+
+  // TODO(Shaohua): Remove c++14 dependency.
+  auto context = std::make_unique<heif::Context>();
+  context->read_from_memory(fileData.data(), fileData.size());
+
+  context_ = std::move(context);
+}
+
+bool IOHandler::read(QImage* qimage) {
+  if (!qimage) {
+    qWarning() << "image is null";
+    return false;
+  }
+
+  try {
+    loadContext();
+
+    if (!context_) {
+      qWarning() << "null context during read";
       return false;
     }
 
-    std::string_view hv(header.data(), headerSize);
-    auto w1 = hv.substr(4, 4);
-    auto w2 = hv.substr(8, 4);
+    auto handle = context_->get_primary_image_handle();
+    auto himage = handle.decode_image(heif_colorspace_RGB,
+                                      heif_chroma_interleaved_RGBA);
 
-    HEIFIMAGEPLUGIN_DEBUG(log, "header data: {}", hv);
+    auto channel = heif_channel_interleaved;
+    int width = himage.get_width(channel);
+    int height = himage.get_height(channel);
 
-    return
-      w1 == "ftyp"sv
-      && (w2 == "heic"sv || w2 == "heix"sv || w2 == "mifi"sv);
-  }
+    int stride = 0;
+    uint8_t const* data = himage.get_plane(channel, &stride);
 
-  bool IOHandler::canRead() const
-  {
-    if (device() && canReadFrom(*device(), _log))
-    {
-      setFormat("heic");  // bastardized const
-      return true;
-    }
+    // copy image data
+    int dataSize = height * stride;
+    uint8_t* dataCopy = new uint8_t[dataSize];
 
-    return false;
-  }
+    std::copy(data, data + dataSize, dataCopy);
 
-  //
-  // Reading
-  //
-
-  void IOHandler::updateDevice()
-  {
-    if (!device())
-    {
-      HEIFIMAGEPLUGIN_WARN(_log, "device is null");
-      HEIFIMAGEPLUGIN_ASSERT(_context == nullptr);
-    }
-
-    if (device() != _device)
-    {
-      HEIFIMAGEPLUGIN_TRACE(_log, "updating device...");
-      _device = device();
-      _context.reset();
-    }
-  }
-
-  void IOHandler::loadContext()
-  {
-    HEIFIMAGEPLUGIN_TRACE(_log);
-    updateDevice();
-
-    if (_context || !device())
-      return;
-
-    HEIFIMAGEPLUGIN_DEBUG(_log, "loading image data...");
-    auto fileData = device()->readAll();
-
-    if (fileData.isEmpty())
-    {
-      HEIFIMAGEPLUGIN_ERROR(_log, "failed to read file data");
-      return;
-    }
-
-    auto context = std::make_unique<heif::Context>();
-    context->read_from_memory(fileData.data(), fileData.size());
-
-    _context = std::move(context);
-  }
-
-  bool IOHandler::read(QImage* qimage)
-  {
-    HEIFIMAGEPLUGIN_TRACE(_log);
-
-    if (!qimage)
-    {
-      HEIFIMAGEPLUGIN_WARN(_log, "image is null");
-      return false;
-    }
-
-    try
-    {
-      loadContext();
-
-      if (!_context)
-      {
-        HEIFIMAGEPLUGIN_DEBUG(_log, "null context during read");
-        return false;
+    *qimage = QImage(
+      dataCopy, width, height, stride, QImage::Format_RGBA8888,
+      [](void* d) {
+        delete[] static_cast<uint8_t*>(d);
       }
+    );
 
-      auto handle = _context->get_primary_image_handle();
-      auto himage = handle.decode_image(heif_colorspace_RGB,
-                                        heif_chroma_interleaved_RGBA);
-
-      auto channel = heif_channel_interleaved;
-      int width = himage.get_width(channel);
-      int height = himage.get_height(channel);
-      HEIFIMAGEPLUGIN_DEBUG(_log, "image size: {} x {}", width, height);
-
-      int stride = 0;
-      uint8_t const* data = himage.get_plane(channel, &stride);
-      HEIFIMAGEPLUGIN_DEBUG(_log, "data stride: {}", stride);
-
-      // copy image data
-      int dataSize = height * stride;
-      uint8_t* dataCopy = new uint8_t[dataSize];
-
-      if (!dataCopy)
-      {
-        log::error(_log, "failed to alloc data copy");
-        return false;
-      }
-
-      std::copy(data, data + dataSize, dataCopy);
-
-      *qimage = QImage(
-        dataCopy, width, height, stride, QImage::Format_RGBA8888,
-        [](void* d) {
-          HEIFIMAGEPLUGIN_DEBUG("deleting image data...");
-          delete[] static_cast<uint8_t*>(d);
-        }
-      );
-
-      return true;
-    }
-    catch (heif::Error const& error)
-    {
-      log::error(_log, "libheif read error: {}", error.get_message());
-    }
-
-    return false;
+    return true;
+  } catch (heif::Error const& error) {
+    qWarning() << "libheif read error: {}" << error.get_message().c_str();
   }
 
-  //
-  // Options
-  //
-
-  QVariant IOHandler::option(ImageOption option_ [[maybe_unused]]) const
-  {
-    HEIFIMAGEPLUGIN_TRACE(_log, "option_: {}", option_);
-    return {};
-  }
-
-  void IOHandler::setOption(ImageOption option_ [[maybe_unused]],
-                            QVariant const& value [[maybe_unused]])
-  {
-    HEIFIMAGEPLUGIN_TRACE(_log, "option_: {}, value: {}",
-                          option_, value.toString().toStdString());
-  }
-
-  bool IOHandler::supportsOption(ImageOption option_ [[maybe_unused]]) const
-  {
-    HEIFIMAGEPLUGIN_TRACE(_log, "option_: {}", option_);
-    return false;
-  }
+  return false;
 }
+
+//
+// Options
+//
+
+QVariant IOHandler::option(ImageOption option) const {
+  Q_UNUSED(option);
+  return {};
+}
+
+void IOHandler::setOption(ImageOption option, const QVariant& value) {
+  Q_UNUSED(option);
+  Q_UNUSED(value);
+}
+
+bool IOHandler::supportsOption(ImageOption option) const {
+  Q_UNUSED(option);
+  return false;
+}
+
+}  // namespace heif_image_plugin

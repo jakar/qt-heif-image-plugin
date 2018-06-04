@@ -1,55 +1,52 @@
-#ifndef HEIFIMAGEPLUGIN_IOHANDLER_H_
-#define HEIFIMAGEPLUGIN_IOHANDLER_H_
+#ifndef HEIF_IMAGE_PLUGIN_IO_HANDLER_H_
+#define HEIF_IMAGE_PLUGIN_IO_HANDLER_H_
 
-#include "logging.h"
-
+#include <memory>
 #include <QIODevice>
 #include <QImageIOHandler>
 
-#include <memory>
-
 namespace heif { class Context; }
 
-namespace heifimageplugin
-{
-  class IOHandler : public QImageIOHandler
-  {
-   public:
-    explicit IOHandler(log::LoggerPtr log_);
-    virtual ~IOHandler();
+namespace heif_image_plugin {
 
-    bool canRead() const override;
-    bool read(QImage* image) override;
+class IOHandler : public QImageIOHandler {
 
-    QVariant option(ImageOption option_) const override;
-    void setOption(ImageOption option_, QVariant const& value) override;
-    bool supportsOption(ImageOption option_) const override;
+ public:
+  explicit IOHandler();
+  virtual ~IOHandler();
 
-    static bool canReadFrom(QIODevice& device, log::LoggerPtr log);
+  bool canRead() const override;
+  bool read(QImage* image) override;
 
-   private:
-    IOHandler(IOHandler const&) = delete;
-    IOHandler& operator=(IOHandler const&) = delete;
+  QVariant option(ImageOption option) const override;
+  void setOption(ImageOption option, const QVariant& value) override;
+  bool supportsOption(ImageOption option) const override;
 
-    /**
-     * Updates device and associated state upon device change.
-     */
-    void updateDevice();
+  static bool canReadFrom(QIODevice& device);
 
-    /**
-     * Reads image data from device.
-     * Throws heif::Error.
-     */
-    void loadContext();
+ private:
+  IOHandler(const IOHandler& handler) = delete;
+  IOHandler& operator=(const IOHandler& handler) = delete;
 
-    //
-    // Private data
-    //
+  /**
+   * Updates device and associated state upon device change.
+   */
+  void updateDevice();
 
-    log::LoggerPtr _log;
-    QIODevice* _device = nullptr;
-    std::unique_ptr<heif::Context> _context;
-  };
-}
+  /**
+   * Reads image data from device.
+   * Throws heif::Error.
+   */
+  void loadContext();
 
-#endif // HEIFIMAGEPLUGIN_IOHANDLER_H_
+  //
+  // Private data
+  //
+
+  QIODevice* device_ = nullptr;
+  std::unique_ptr<heif::Context> context_;
+};
+
+}  // namespace heif_image_plugin
+
+#endif  // HEIF_IMAGE_PLUGIN_IO_HANDLER_H_
