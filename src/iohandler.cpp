@@ -32,8 +32,8 @@ bool IOHandler::canReadFrom(QIODevice& device) {
     return false;
   }
 
-  const QByteArray w1 = header.mid(0, 4);
-  const QByteArray w2 = header.mid(4, 4);
+  const QByteArray w1 = header.mid(4, 4);
+  const QByteArray w2 = header.mid(8, 4);
 
   return w1 == "ftyp" && (w2 == "heic" || w2 == "heix" || w2 == "mifi");
 }
