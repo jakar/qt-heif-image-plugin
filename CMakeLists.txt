@@ -61,7 +61,5 @@ target_link_libraries(
   PkgConfig::libheif
 )
 
-message("cmake library path: ${CMAKE_LIBRARY_PATH}")
-
 install(TARGETS heifimageplugin
-        DESTINATION ${CMAKE_LIBRARY_PATH}/qt5/plugins/imageformats)
+        DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/${CMAKE_LIBRARY_PATH}/qt5/plugins/imageformats)
