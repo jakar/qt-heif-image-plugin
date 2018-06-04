@@ -1,4 +1,4 @@
-# heifimageplugin: HEIF Image Plugin for Qt
+# heif_image_plugin: HEIF Image Plugin for Qt
 This is a work in progress.
 
 ## Dependencies
@@ -6,5 +6,6 @@ Required:
 * [Qt](https://www.qt.io/)
 * [libheif](https://github.com/strukturag/libheif)
 
-Only if logging is enabled:
-* [spdlog](https://github.com/gabime/spdlog)
+## Usage
+For normal users, please install Qt-based image viewers, like
+[lximage-qt](https://github.com/lxqt/lximage-qt).
