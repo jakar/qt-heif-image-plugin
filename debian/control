@@ -1,7 +1,7 @@
 Source: qt-heifimageplugin
 Priority: optional
 Maintainer: Xu Shaohua <xushaohua2016@outlook.com>
-Build-Depends: debhelper (>= 9)
+Build-Depends: debhelper (>= 9),
     cmake,
     libheif-dev,
 Standards-Version: 3.9.8
