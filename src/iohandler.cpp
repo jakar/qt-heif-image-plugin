@@ -4,11 +4,15 @@
 #include <cstdint>
 #include <iostream>
 #include <memory>
+
 #include <libheif/heif_cxx.h>
+
 #include <QDebug>
 #include <QImage>
 #include <QSize>
 #include <QVariant>
+
+#include "util.h"
 
 namespace heif_image_plugin {
 
@@ -77,8 +81,7 @@ void IOHandler::loadContext() {
     return;
   }
 
-  // TODO(Shaohua): Remove c++14 dependency.
-  auto context = std::make_unique<heif::Context>();
+  auto context = util::make_unique<heif::Context>();
   context->read_from_memory(fileData.data(), fileData.size());
 
   context_ = std::move(context);
