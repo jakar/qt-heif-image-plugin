@@ -1,16 +1,20 @@
 #ifndef HEIF_IMAGE_PLUGIN_IO_HANDLER_H_
 #define HEIF_IMAGE_PLUGIN_IO_HANDLER_H_
 
-#include <memory>
 #include <QIODevice>
 #include <QImageIOHandler>
 
-namespace heif { class Context; }
+#include <memory>
+
+// forward decl
+namespace heif {
+class Context;
+}  // namespace heif
 
 namespace heif_image_plugin {
 
-class IOHandler : public QImageIOHandler {
-
+class IOHandler : public QImageIOHandler
+{
  public:
   explicit IOHandler();
   virtual ~IOHandler();

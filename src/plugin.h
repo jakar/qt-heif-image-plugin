@@ -5,7 +5,8 @@
 
 namespace heif_image_plugin {
 
-class Plugin : public QImageIOPlugin {
+class Plugin : public QImageIOPlugin
+{
   Q_OBJECT;
   Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QImageIOHandlerFactoryInterface"
                     FILE "heif.json");

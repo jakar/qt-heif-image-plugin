@@ -16,22 +16,25 @@
 
 namespace heif_image_plugin {
 
-IOHandler::IOHandler() : QImageIOHandler() {
+IOHandler::IOHandler()
+  : QImageIOHandler()
+{
 }
 
-IOHandler::~IOHandler() {
-}
+IOHandler::~IOHandler() {}
 
 //
 // Peeking
 //
 
-bool IOHandler::canReadFrom(QIODevice& device) {
+bool IOHandler::canReadFrom(QIODevice& device)
+{
   // logic taken from qt macheif plugin
   constexpr int kHeaderSize = 12;
   QByteArray header = device.peek(kHeaderSize);
 
-  if (header.size() != kHeaderSize) {
+  if (header.size() != kHeaderSize)
+  {
     qWarning() << "could not read header";
     return false;
   }
@@ -42,8 +45,10 @@ bool IOHandler::canReadFrom(QIODevice& device) {
   return w1 == "ftyp" && (w2 == "heic" || w2 == "heix" || w2 == "mifi");
 }
 
-bool IOHandler::canRead() const {
-  if (device() && canReadFrom(*device())) {
+bool IOHandler::canRead() const
+{
+  if (device() && canReadFrom(*device()))
+  {
     setFormat("heic");  // bastardized const
     return true;
   }
@@ -55,28 +60,34 @@ bool IOHandler::canRead() const {
 // Reading
 //
 
-void IOHandler::updateDevice() {
-  if (!device()) {
+void IOHandler::updateDevice()
+{
+  if (!device())
+  {
     qWarning() << "device is null";
     Q_ASSERT(context_ == nullptr);
   }
 
-  if (device() != device_) {
+  if (device() != device_)
+  {
     device_ = device();
     context_.reset();
   }
 }
 
-void IOHandler::loadContext() {
+void IOHandler::loadContext()
+{
   updateDevice();
 
-  if (context_ || !device()) {
+  if (context_ || !device())
+  {
     return;
   }
 
   auto fileData = device()->readAll();
 
-  if (fileData.isEmpty()) {
+  if (fileData.isEmpty())
+  {
     qWarning() << "failed to read file data";
     return;
   }
@@ -87,16 +98,20 @@ void IOHandler::loadContext() {
   context_ = std::move(context);
 }
 
-bool IOHandler::read(QImage* qimage) {
-  if (!qimage) {
+bool IOHandler::read(QImage* qimage)
+{
+  if (!qimage)
+  {
     qWarning() << "image is null";
     return false;
   }
 
-  try {
+  try
+  {
     loadContext();
 
-    if (!context_) {
+    if (!context_)
+    {
       qWarning() << "null context during read";
       return false;
     }
@@ -120,13 +135,13 @@ bool IOHandler::read(QImage* qimage) {
 
     *qimage = QImage(
       dataCopy, width, height, stride, QImage::Format_RGBA8888,
-      [](void* d) {
-        delete[] static_cast<uint8_t*>(d);
-      }
+      [](void* d) { delete[] static_cast<uint8_t*>(d); }
     );
 
     return true;
-  } catch (const heif::Error& error) {
+  }
+  catch (const heif::Error& error)
+  {
     qWarning() << "libheif read error: {}" << error.get_message().c_str();
   }
 
@@ -137,17 +152,20 @@ bool IOHandler::read(QImage* qimage) {
 // Options
 //
 
-QVariant IOHandler::option(ImageOption option) const {
+QVariant IOHandler::option(ImageOption option) const
+{
   Q_UNUSED(option);
   return {};
 }
 
-void IOHandler::setOption(ImageOption option, const QVariant& value) {
+void IOHandler::setOption(ImageOption option, const QVariant& value)
+{
   Q_UNUSED(option);
   Q_UNUSED(value);
 }
 
-bool IOHandler::supportsOption(ImageOption option) const {
+bool IOHandler::supportsOption(ImageOption option) const
+{
   Q_UNUSED(option);
   return false;
 }
