@@ -3,7 +3,7 @@ Upstream-Name: qt-heif_image_plugin
 Source: https://github.com/xushaohua/qt-heifimageplugin
 
 Files: *
-Copyright: Jake Harr
+Copyright: Jake Harr <jakeharr@gmail.com>
            Xu Shaohua <xushaohua2016@outlook.com>
 License: LGPL-3.0+
 
