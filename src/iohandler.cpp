@@ -13,15 +13,20 @@
 #include <QVariant>
 
 #include "util.h"
+#include "trace.h"
 
 namespace heif_image_plugin {
 
 IOHandler::IOHandler()
   : QImageIOHandler()
 {
+  HEIF_IMAGE_PLUGIN_TRACE("");
 }
 
-IOHandler::~IOHandler() {}
+IOHandler::~IOHandler()
+{
+  HEIF_IMAGE_PLUGIN_TRACE("");
+}
 
 //
 // Peeking
@@ -29,6 +34,8 @@ IOHandler::~IOHandler() {}
 
 bool IOHandler::canReadFrom(QIODevice& device)
 {
+  HEIF_IMAGE_PLUGIN_TRACE("");
+
   // logic taken from qt macheif plugin
   constexpr int kHeaderSize = 12;
   QByteArray header = device.peek(kHeaderSize);
@@ -100,6 +107,8 @@ void IOHandler::loadContext()
 
 bool IOHandler::read(QImage* qimage)
 {
+  HEIF_IMAGE_PLUGIN_TRACE("qimage:" << qimage);
+
   if (!qimage)
   {
     qWarning() << "image is null";
@@ -142,7 +151,7 @@ bool IOHandler::read(QImage* qimage)
   }
   catch (const heif::Error& error)
   {
-    qWarning() << "libheif read error: {}" << error.get_message().c_str();
+    qWarning() << "libheif read error:" << error.get_message().c_str();
   }
 
   return false;
@@ -152,21 +161,24 @@ bool IOHandler::read(QImage* qimage)
 // Options
 //
 
-QVariant IOHandler::option(ImageOption option) const
+QVariant IOHandler::option(ImageOption option_) const
 {
-  Q_UNUSED(option);
+  Q_UNUSED(option_);
+  HEIF_IMAGE_PLUGIN_TRACE("option:" << option_);
   return {};
 }
 
-void IOHandler::setOption(ImageOption option, const QVariant& value)
+void IOHandler::setOption(ImageOption option_, const QVariant& value)
 {
-  Q_UNUSED(option);
+  Q_UNUSED(option_);
   Q_UNUSED(value);
+  HEIF_IMAGE_PLUGIN_TRACE("option:" << option_ << ", value:" << value);
 }
 
-bool IOHandler::supportsOption(ImageOption option) const
+bool IOHandler::supportsOption(ImageOption option_) const
 {
-  Q_UNUSED(option);
+  Q_UNUSED(option_);
+  HEIF_IMAGE_PLUGIN_TRACE("option:" << option_);
   return false;
 }
 

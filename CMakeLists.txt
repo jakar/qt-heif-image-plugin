@@ -41,6 +41,16 @@ find_package(PkgConfig)
 pkg_check_modules(libheif REQUIRED IMPORTED_TARGET libheif>=1.2)
 
 #
+# logging
+#
+
+set(HEIFIMAGEPLUGIN_ENABLE_TRACE OFF CACHE BOOL "Enable trace logging")
+
+if (${HEIFIMAGEPLUGIN_ENABLE_TRACE})
+  add_definitions(-DHEIFIMAGEPLUGIN_ENABLE_TRACE)
+endif ()
+
+#
 # project source
 #
 
