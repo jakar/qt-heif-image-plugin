@@ -107,7 +107,7 @@ bool IOHandler::read(QImage* qimage) {
     int height = himage.get_height(channel);
 
     int stride = 0;
-    uint8_t const* data = himage.get_plane(channel, &stride);
+    const uint8_t* data = himage.get_plane(channel, &stride);
 
     // copy image data
     int dataSize = height * stride;
@@ -123,7 +123,7 @@ bool IOHandler::read(QImage* qimage) {
     );
 
     return true;
-  } catch (heif::Error const& error) {
+  } catch (const heif::Error& error) {
     qWarning() << "libheif read error: {}" << error.get_message().c_str();
   }
 
