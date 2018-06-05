@@ -65,13 +65,13 @@ void IOHandler::updateDevice()
   if (!device())
   {
     qWarning() << "device is null";
-    Q_ASSERT(context_ == nullptr);
+    Q_ASSERT(_context == nullptr);
   }
 
-  if (device() != device_)
+  if (device() != _device)
   {
-    device_ = device();
-    context_.reset();
+    _device = device();
+    _context.reset();
   }
 }
 
@@ -79,7 +79,7 @@ void IOHandler::loadContext()
 {
   updateDevice();
 
-  if (context_ || !device())
+  if (_context || !device())
   {
     return;
   }
@@ -95,7 +95,7 @@ void IOHandler::loadContext()
   auto context = util::make_unique<heif::Context>();
   context->read_from_memory(fileData.data(), fileData.size());
 
-  context_ = std::move(context);
+  _context = std::move(context);
 }
 
 bool IOHandler::read(QImage* qimage)
@@ -110,13 +110,13 @@ bool IOHandler::read(QImage* qimage)
   {
     loadContext();
 
-    if (!context_)
+    if (!_context)
     {
       qWarning() << "null context during read";
       return false;
     }
 
-    auto handle = context_->get_primary_image_handle();
+    auto handle = _context->get_primary_image_handle();
     auto himage = handle.decode_image(heif_colorspace_RGB,
                                       heif_chroma_interleaved_RGBA);
 

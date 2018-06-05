@@ -47,8 +47,8 @@ class IOHandler : public QImageIOHandler
   // Private data
   //
 
-  QIODevice* device_ = nullptr;
-  std::unique_ptr<heif::Context> context_;
+  QIODevice* _device = nullptr;
+  std::unique_ptr<heif::Context> _context;
 };
 
 }  // namespace heif_image_plugin
