@@ -18,7 +18,7 @@
  * must be enabled at compile time, which is no the default case. If not
  * explicitly enabled, this is simply a no-op.
  */
-#if defined(HEIFIMAGEPLUGIN_ENABLE_TRACE)
+#if defined(HEIF_IMAGE_PLUGIN_ENABLE_TRACE)
 # define HEIF_IMAGE_PLUGIN_TRACE(...) \
     qDebug() \
       << "trace:" << HEIF_IMAGE_PLUGIN_TRACE_CURRENT_FUNC << ":" \
