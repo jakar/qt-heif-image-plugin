@@ -17,7 +17,7 @@ class ContextWriter : public heif::Context::Writer
   heif_error write(const void* data, size_t size) override;
 
  private:
-    QIODevice& _device;
+  QIODevice& _device;
 };
 
 }  // namespace heif_image_plugin

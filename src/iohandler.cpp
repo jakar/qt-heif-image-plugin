@@ -271,7 +271,7 @@ void IOHandler::setOption(ImageOption option_, const QVariant& value)
       bool ok = false;
       int q = value.toInt(&ok);
 
-      if (ok && q >=0 && q <= 100)
+      if (ok && q >= 0 && q <= 100)
       {
         _quality = q;
       }
@@ -284,6 +284,7 @@ void IOHandler::setOption(ImageOption option_, const QVariant& value)
 
 bool IOHandler::supportsOption(ImageOption option_) const
 {
+  Q_UNUSED(option_);
   HEIF_IMAGE_PLUGIN_TRACE("option:" << option_);
 
   return Quality;
