@@ -17,10 +17,17 @@
 #include "util.h"
 #include "trace.h"
 
+namespace {
+
+constexpr int kDefaultQuality = 50;  // TODO: maybe adjust this
+
+}  // namespace
+
 namespace heif_image_plugin {
 
 IOHandler::IOHandler()
-  : QImageIOHandler()
+  : QImageIOHandler(),
+    _quality{kDefaultQuality}
 {
   HEIF_IMAGE_PLUGIN_TRACE("");
 }
@@ -194,7 +201,7 @@ bool IOHandler::write(const QImage& origImage)
     _context = std::make_unique<heif::Context>();
 
     heif::Encoder encoder(heif_compression_HEVC);
-    encoder.set_lossy_quality(50);  // TODO: set via option
+    encoder.set_lossy_quality(_quality);
 
     int width = qimage.width();
     int height = qimage.height();
@@ -255,16 +262,31 @@ QVariant IOHandler::option(ImageOption option_) const
 
 void IOHandler::setOption(ImageOption option_, const QVariant& value)
 {
-  Q_UNUSED(option_);
-  Q_UNUSED(value);
   HEIF_IMAGE_PLUGIN_TRACE("option:" << option_ << ", value:" << value);
+
+  switch (option_)
+  {
+    case Quality:
+    {
+      bool ok = false;
+      int q = value.toInt(&ok);
+
+      if (ok && q >=0 && q <= 100)
+      {
+        _quality = q;
+      }
+    }
+
+    default:
+      return;
+  }
 }
 
 bool IOHandler::supportsOption(ImageOption option_) const
 {
-  Q_UNUSED(option_);
   HEIF_IMAGE_PLUGIN_TRACE("option:" << option_);
-  return false;
+
+  return Quality;
 }
 
 }  // namespace heif_image_plugin

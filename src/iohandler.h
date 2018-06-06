@@ -53,6 +53,7 @@ class IOHandler : public QImageIOHandler
 
   QIODevice* _device = nullptr;
   std::unique_ptr<heif::Context> _context;
+  int _quality;
 };
 
 }  // namespace heif_image_plugin
