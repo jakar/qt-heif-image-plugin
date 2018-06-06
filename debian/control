@@ -1,4 +1,4 @@
-Source: qt-heifimageplugin
+Source: qt-heif-image-plugin
 Priority: optional
 Maintainer: Xu Shaohua <xushaohua2016@outlook.com>
 Build-Depends: debhelper (>= 9),
@@ -8,7 +8,7 @@ Standards-Version: 3.9.8
 Section: libs
 Homepage: https://github.com/xushaohua/qt-heifimageplugin
 
-Package: qt-heifimageplugin
+Package: qt-heif-image-plugin
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: heif plugin for Qt

@@ -1,5 +1,5 @@
 #
-# heif_image_plugin listfile
+# qt-heif-image-plugin listfile
 #
 
 cmake_minimum_required(VERSION 3.2)
