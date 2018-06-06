@@ -127,6 +127,21 @@ void IOHandler::loadContext()
   _readState = std::move(readState);
 }
 
+QSize IOHandler::getImageSize() const
+{
+  if (!_readState)
+  {
+    // return invalid size
+    qDebug() << "no image data to read size";
+    return {};
+  }
+
+  auto chan = heif_channel_interleaved;
+  auto& img = _readState->image;
+
+  return {img.get_width(chan), img.get_height(chan)};
+}
+
 bool IOHandler::read(QImage* qimage)
 {
   HEIF_IMAGE_PLUGIN_TRACE("qimage:" << qimage);
@@ -148,22 +163,28 @@ bool IOHandler::read(QImage* qimage)
     }
 
     auto& himage = _readState->image;
-
     auto channel = heif_channel_interleaved;
-    int width = himage.get_width(channel);
-    int height = himage.get_height(channel);
 
     int stride = 0;
     const uint8_t* data = himage.get_plane(channel, &stride);
 
+    auto imgSize = getImageSize();
+
+    if (!imgSize.isValid())
+    {
+      qWarning() << "invalid image size";
+      return false;
+    }
+
     // copy image data
-    int dataSize = height * stride;
+    int dataSize = imgSize.height() * stride;
     uint8_t* dataCopy = new uint8_t[dataSize];
 
     std::copy(data, data + dataSize, dataCopy);
 
     *qimage = QImage(
-      dataCopy, width, height, stride, QImage::Format_RGBA8888,
+      dataCopy, imgSize.width(), imgSize.height(),
+      stride, QImage::Format_RGBA8888,
       [](void* d) { delete[] static_cast<uint8_t*>(d); }
     );
 
@@ -195,7 +216,7 @@ bool IOHandler::write(const QImage& origImage)
 
   if (origImage.isNull())
   {
-    qWarning() << "origImage to write is null";
+    qWarning() << "image to write is null";
     return false;
   }
 
@@ -238,7 +259,6 @@ bool IOHandler::write(const QImage& origImage)
       std::copy(qimgBegin, qimgEnd, himgData + y * himgStride);
     }
 
-    // returns ImageHandle
     context.encode_image(himage, encoder);
 
     ContextWriter writer(*device());
@@ -260,9 +280,19 @@ bool IOHandler::write(const QImage& origImage)
 
 QVariant IOHandler::option(ImageOption option_) const
 {
-  Q_UNUSED(option_);
   HEIF_IMAGE_PLUGIN_TRACE("option:" << option_);
-  return {};
+
+  switch (option_)
+  {
+    case Size:
+    {
+      QSize size = getImageSize();
+      return size.isValid() ? size : QVariant{};
+    }
+
+    default:
+      return {};
+  }
 }
 
 void IOHandler::setOption(ImageOption option_, const QVariant& value)
@@ -289,10 +319,9 @@ void IOHandler::setOption(ImageOption option_, const QVariant& value)
 
 bool IOHandler::supportsOption(ImageOption option_) const
 {
-  Q_UNUSED(option_);
   HEIF_IMAGE_PLUGIN_TRACE("option:" << option_);
 
-  return Quality;
+  return option_ == Quality || option_ == Size;
 }
 
 }  // namespace heif_image_plugin

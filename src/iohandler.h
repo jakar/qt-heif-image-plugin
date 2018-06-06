@@ -5,6 +5,7 @@
 
 #include <QIODevice>
 #include <QImageIOHandler>
+#include <QSize>
 
 #include <memory>
 
@@ -47,6 +48,11 @@ class IOHandler : public QImageIOHandler
    * Throws heif::Error.
    */
   void loadContext();
+
+  /**
+   * Returns size from previously loaded image data.
+   */
+  QSize getImageSize() const;
 
   //
   // Private data
