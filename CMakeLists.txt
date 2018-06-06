@@ -71,5 +71,28 @@ target_link_libraries(
   PkgConfig::libheif
 )
 
+#
+# installation (adapted from lxqt-qtplugin)
+#
+
+get_target_property(
+  QT_QMAKE_EXECUTABLE ${Qt5Core_QMAKE_EXECUTABLE} IMPORTED_LOCATION)
+
+if (NOT QT_QMAKE_EXECUTABLE)
+  message(FATAL_ERROR "qmake is not found.")
+endif ()
+
+execute_process(
+  COMMAND ${QT_QMAKE_EXECUTABLE} -query QT_INSTALL_PLUGINS
+  OUTPUT_VARIABLE QT_PLUGINS_DIR
+  OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+
+if (QT_PLUGINS_DIR)
+  message(STATUS "Qt5 plugin directory:" "${QT_PLUGINS_DIR}")
+else ()
+  message(FATAL_ERROR "Qt5 plugin directory cannot be detected.")
+endif ()
+
 install(TARGETS heifimageplugin
-        DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/${CMAKE_LIBRARY_PATH}/qt5/plugins/imageformats)
+        LIBRARY DESTINATION "${QT_PLUGINS_DIR}/imageformats")
