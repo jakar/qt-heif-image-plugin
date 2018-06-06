@@ -20,8 +20,6 @@ class Plugin : public QImageIOPlugin
 
   QImageIOHandler* create(QIODevice* device,
                           const QByteArray& format = QByteArray()) const override;
-
- private:
 };
 
 }  // namespace heif_image_plugin
