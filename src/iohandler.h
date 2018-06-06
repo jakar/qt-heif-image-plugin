@@ -1,17 +1,12 @@
 #ifndef HEIF_IMAGE_PLUGIN_IO_HANDLER_H_
 #define HEIF_IMAGE_PLUGIN_IO_HANDLER_H_
 
+#include <libheif/heif_cxx.h>
+
 #include <QIODevice>
 #include <QImageIOHandler>
 
 #include <memory>
-
-namespace heif {
-
-// forward decls
-class Context;
-
-}  // namespace heif
 
 namespace heif_image_plugin {
 
@@ -33,6 +28,12 @@ class IOHandler : public QImageIOHandler
   static bool canReadFrom(QIODevice& device);
 
  private:
+  struct ReadState
+  {
+    heif::Context context{};
+    heif::Image image{};
+  };
+
   IOHandler(const IOHandler& handler) = delete;
   IOHandler& operator=(const IOHandler& handler) = delete;
 
@@ -52,7 +53,9 @@ class IOHandler : public QImageIOHandler
   //
 
   QIODevice* _device = nullptr;
-  std::unique_ptr<heif::Context> _context;
+
+  std::unique_ptr<ReadState> _readState;
+
   int _quality;
 };
 

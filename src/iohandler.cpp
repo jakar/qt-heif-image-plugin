@@ -37,6 +37,21 @@ IOHandler::~IOHandler()
   HEIF_IMAGE_PLUGIN_TRACE("");
 }
 
+void IOHandler::updateDevice()
+{
+  if (!device())
+  {
+    qWarning() << "device is null";
+    Q_ASSERT(_readState == nullptr);
+  }
+
+  if (device() != _device)
+  {
+    _device = device();
+    _readState.reset();
+  }
+}
+
 //
 // Peeking
 //
@@ -76,27 +91,18 @@ bool IOHandler::canRead() const
 // Reading
 //
 
-void IOHandler::updateDevice()
-{
-  if (!device())
-  {
-    qWarning() << "device is null";
-    Q_ASSERT(_context == nullptr);
-  }
-
-  if (device() != _device)
-  {
-    _device = device();
-    _context.reset();
-  }
-}
-
 void IOHandler::loadContext()
 {
   updateDevice();
 
-  if (_context || !device())
+  if (!device())
   {
+    return;
+  }
+
+  if (_readState)
+  {
+    // context already loded
     return;
   }
 
@@ -108,10 +114,17 @@ void IOHandler::loadContext()
     return;
   }
 
-  auto context = util::make_unique<heif::Context>();
-  context->read_from_memory(fileData.data(), fileData.size());
+  // set up new context
+  auto readState = util::make_unique<ReadState>();
+  auto& context = readState->context;
 
-  _context = std::move(context);
+  context.read_from_memory(fileData.data(), fileData.size());
+
+  auto handle = context.get_primary_image_handle();
+  readState->image = handle.decode_image(heif_colorspace_RGB,
+                                         heif_chroma_interleaved_RGBA);
+
+  _readState = std::move(readState);
 }
 
 bool IOHandler::read(QImage* qimage)
@@ -128,15 +141,13 @@ bool IOHandler::read(QImage* qimage)
   {
     loadContext();
 
-    if (!_context)
+    if (!_readState)
     {
-      qWarning() << "null context during read";
+      qWarning() << "failed to decode image";
       return false;
     }
 
-    auto handle = _context->get_primary_image_handle();
-    auto himage = handle.decode_image(heif_colorspace_RGB,
-                                      heif_chroma_interleaved_RGBA);
+    auto& himage = _readState->image;
 
     auto channel = heif_channel_interleaved;
     int width = himage.get_width(channel);
@@ -174,19 +185,7 @@ bool IOHandler::write(const QImage& origImage)
 {
   HEIF_IMAGE_PLUGIN_TRACE("");
 
-  if (origImage.isNull())
-  {
-    qWarning() << "origImage to write is null";
-    return false;
-  }
-
   updateDevice();
-
-  if (_context)
-  {
-    qWarning() << "context not null before write";
-    return false;
-  }
 
   if (!device())
   {
@@ -194,11 +193,17 @@ bool IOHandler::write(const QImage& origImage)
     return false;
   }
 
+  if (origImage.isNull())
+  {
+    qWarning() << "origImage to write is null";
+    return false;
+  }
+
   QImage qimage = origImage.convertToFormat(QImage::Format_RGBA8888);
 
   try
   {
-    _context = std::make_unique<heif::Context>();
+    heif::Context context{};
 
     heif::Encoder encoder(heif_compression_HEVC);
     encoder.set_lossy_quality(_quality);
@@ -234,10 +239,10 @@ bool IOHandler::write(const QImage& origImage)
     }
 
     // returns ImageHandle
-    _context->encode_image(himage, encoder);
+    context.encode_image(himage, encoder);
 
     ContextWriter writer(*device());
-    _context->write(writer);
+    context.write(writer);
 
     return true;
   }
