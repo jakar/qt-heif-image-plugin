@@ -6,9 +6,11 @@
 
 #include <memory>
 
-// forward decl
 namespace heif {
+
+// forward decls
 class Context;
+
 }  // namespace heif
 
 namespace heif_image_plugin {
@@ -21,6 +23,8 @@ class IOHandler : public QImageIOHandler
 
   bool canRead() const override;
   bool read(QImage* image) override;
+
+  bool write(const QImage& image) override;
 
   QVariant option(ImageOption option) const override;
   void setOption(ImageOption option, const QVariant& value) override;

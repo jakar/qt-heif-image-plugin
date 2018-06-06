@@ -27,7 +27,7 @@ Plugin::Capabilities Plugin::capabilities(QIODevice* device,
   {
     if (formatOK)
     {
-      return CanRead;
+      return CanRead | CanWrite;
     }
     else
     {
@@ -35,12 +35,18 @@ Plugin::Capabilities Plugin::capabilities(QIODevice* device,
     }
   }
 
+  Capabilities caps{};
+
   if (device->isReadable() && IOHandler::canReadFrom(*device))
   {
-    return CanRead;
+    caps |= CanRead;
+  }
+  if (device->isWritable())
+  {
+    caps |= CanWrite;
   }
 
-  return {};
+  return caps;
 }
 
 QImageIOHandler* Plugin::create(QIODevice* device,

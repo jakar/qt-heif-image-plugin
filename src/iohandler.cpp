@@ -1,5 +1,7 @@
 #include "iohandler.h"
 
+#include "contextwriter.h"
+
 #include <algorithm>
 #include <cstdint>
 #include <iostream>
@@ -152,6 +154,89 @@ bool IOHandler::read(QImage* qimage)
   catch (const heif::Error& error)
   {
     qWarning() << "libheif read error:" << error.get_message().c_str();
+  }
+
+  return false;
+}
+
+//
+// Writing
+//
+
+bool IOHandler::write(const QImage& origImage)
+{
+  HEIF_IMAGE_PLUGIN_TRACE("");
+
+  if (origImage.isNull())
+  {
+    qWarning() << "origImage to write is null";
+    return false;
+  }
+
+  updateDevice();
+
+  if (_context)
+  {
+    qWarning() << "context not null before write";
+    return false;
+  }
+
+  if (!device())
+  {
+    qWarning() << "device null before write";
+    return false;
+  }
+
+  QImage qimage = origImage.convertToFormat(QImage::Format_RGBA8888);
+
+  try
+  {
+    _context = std::make_unique<heif::Context>();
+
+    heif::Encoder encoder(heif_compression_HEVC);
+    encoder.set_lossy_quality(50);  // TODO: set via option
+
+    int width = qimage.width();
+    int height = qimage.height();
+
+    heif::Image himage{};
+    himage.create(width, height,
+                  heif_colorspace_RGB,
+                  heif_chroma_interleaved_RGBA);
+
+    auto channel = heif_channel_interleaved;
+    himage.add_plane(channel, width, height, 32);
+
+    int himgStride;
+    uint8_t* himgData = himage.get_plane(channel, &himgStride);
+
+    const uint8_t* qimgData = qimage.bits();
+    const int qimgStride = qimage.bytesPerLine();
+
+    if (qimage.bytesPerLine() > himgStride)
+    {
+      qWarning() << "source line larger than destination";
+      return false;
+    }
+
+    for (int y = 0; y < height; ++y)
+    {
+      auto* qimgBegin = qimgData + y * qimgStride;
+      auto* qimgEnd = qimgBegin + qimgStride;
+      std::copy(qimgBegin, qimgEnd, himgData + y * himgStride);
+    }
+
+    // returns ImageHandle
+    _context->encode_image(himage, encoder);
+
+    ContextWriter writer(*device());
+    _context->write(writer);
+
+    return true;
+  }
+  catch (const heif::Error& error)
+  {
+    qWarning() << "libheif write error:" << error.get_message().c_str();
   }
 
   return false;
