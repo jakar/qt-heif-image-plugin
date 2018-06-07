@@ -4,12 +4,15 @@ Maintainer: Xu Shaohua <xushaohua2016@outlook.com>
 Build-Depends: debhelper (>= 9),
     cmake,
     libheif-dev,
+    qtbase5-dev,
 Standards-Version: 3.9.8
 Section: libs
-Homepage: https://github.com/xushaohua/qt-heifimageplugin
+Homepage: https://github.com/jakar/qt-heif-image-plugin
 
 Package: qt-heif-image-plugin
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
+Conflicts: qt-heifimageplugin
+Replaces: qt-heifimageplugin
 Description: heif plugin for Qt
  Wrapper of libheif for Qt image
