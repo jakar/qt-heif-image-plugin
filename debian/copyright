@@ -1,6 +1,6 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: qt-heif-image-plugin
-Source: https://github.com/xushaohua/qt-heifimageplugin
+Source: https://github.com/jakar/qt-heif-image-plugin
 
 Files: *
 Copyright: Jake Harr <jakeharr@gmail.com>

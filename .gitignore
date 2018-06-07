@@ -1,0 +1,8 @@
+
+debian/.debhelper/
+debian/debhelper-build-stamp
+debian/files
+debian/qt-heif-image-plugin.debhelper.log
+debian/qt-heif-image-plugin.substvars
+debian/qt-heif-image-plugin/
+obj-*-linux-gnu/
