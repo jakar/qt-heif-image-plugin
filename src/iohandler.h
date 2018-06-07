@@ -1,22 +1,26 @@
 #ifndef HEIF_IMAGE_PLUGIN_IO_HANDLER_H_
 #define HEIF_IMAGE_PLUGIN_IO_HANDLER_H_
 
-#include <memory>
+#include <libheif/heif_cxx.h>
+
 #include <QIODevice>
 #include <QImageIOHandler>
+#include <QSize>
 
-namespace heif { class Context; }
+#include <memory>
 
 namespace heif_image_plugin {
 
-class IOHandler : public QImageIOHandler {
-
+class IOHandler : public QImageIOHandler
+{
  public:
   explicit IOHandler();
   virtual ~IOHandler();
 
   bool canRead() const override;
   bool read(QImage* image) override;
+
+  bool write(const QImage& image) override;
 
   QVariant option(ImageOption option) const override;
   void setOption(ImageOption option, const QVariant& value) override;
@@ -25,6 +29,12 @@ class IOHandler : public QImageIOHandler {
   static bool canReadFrom(QIODevice& device);
 
  private:
+  struct ReadState
+  {
+    heif::Context context{};
+    heif::Image image{};
+  };
+
   IOHandler(const IOHandler& handler) = delete;
   IOHandler& operator=(const IOHandler& handler) = delete;
 
@@ -39,12 +49,20 @@ class IOHandler : public QImageIOHandler {
    */
   void loadContext();
 
+  /**
+   * Returns size from previously loaded image data.
+   */
+  QSize getImageSize() const;
+
   //
   // Private data
   //
 
-  QIODevice* device_ = nullptr;
-  std::unique_ptr<heif::Context> context_;
+  QIODevice* _device = nullptr;
+
+  std::unique_ptr<ReadState> _readState;
+
+  int _quality;
 };
 
 }  // namespace heif_image_plugin

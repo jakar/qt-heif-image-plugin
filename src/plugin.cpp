@@ -4,38 +4,54 @@
 
 namespace heif_image_plugin {
 
-Plugin::Plugin(QObject* parent_) : QImageIOPlugin(parent_) {
+Plugin::Plugin(QObject* parent_)
+  : QImageIOPlugin(parent_)
+{
 }
 
-Plugin::~Plugin() {
+Plugin::~Plugin()
+{
 }
 
 Plugin::Capabilities Plugin::capabilities(QIODevice* device,
-                                          const QByteArray& format) const {
-
+                                          const QByteArray& format) const
+{
   const bool formatOK = (format == "heic" || format == "heif");
 
-  if (!formatOK && !format.isEmpty()) {
+  if (!formatOK && !format.isEmpty())
+  {
     return {};
   }
 
-  if (device == nullptr) {
-    if (formatOK) {
-      return CanRead;
-    } else {
+  if (device == nullptr)
+  {
+    if (formatOK)
+    {
+      return CanRead | CanWrite;
+    }
+    else
+    {
       return {};
     }
   }
 
-  if (device->isReadable() && IOHandler::canReadFrom(*device)) {
-    return CanRead;
+  Capabilities caps{};
+
+  if (device->isReadable() && IOHandler::canReadFrom(*device))
+  {
+    caps |= CanRead;
+  }
+  if (device->isWritable())
+  {
+    caps |= CanWrite;
   }
 
-  return {};
+  return caps;
 }
 
 QImageIOHandler* Plugin::create(QIODevice* device,
-                                const QByteArray& format) const {
+                                const QByteArray& format) const
+{
   IOHandler* ioHandler = new IOHandler();
   ioHandler->setDevice(device);
   ioHandler->setFormat(format);

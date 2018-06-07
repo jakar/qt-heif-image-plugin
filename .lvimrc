@@ -1,0 +1,6 @@
+if g:localvimrc_sourced_once_for_file
+  finish
+endif
+
+setlocal shiftwidth=2
+setlocal cinoptions=g0.5s,h0.5s,:s,l1,t0,+s,(0,u0,Ws,m1,N-s
