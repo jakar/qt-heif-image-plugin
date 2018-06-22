@@ -185,7 +185,8 @@ bool IOHandler::read(QImage* qimage)
     *qimage = QImage(
       dataCopy, imgSize.width(), imgSize.height(),
       stride, QImage::Format_RGBA8888,
-      [](void* d) { delete[] static_cast<uint8_t*>(d); }
+      [](void* d) { delete[] static_cast<uint8_t*>(d); },
+      dataCopy
     );
 
     return true;
