@@ -27,6 +27,11 @@ set(
 
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Og")
 
+set(sanitizer_flags "-fsanitize=address -fsanitize=undefined")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${sanitizer_flags}")
+set(CMAKE_LINKER_FLAGS_DEBUG
+    "${CMAKE_MODULE_LINKER_FLAGS_DEBUG} ${sanitizer_flags}")
+
 #
 # third-party libs
 #
