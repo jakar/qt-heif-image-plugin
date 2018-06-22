@@ -214,11 +214,17 @@ bool IOHandler::write(const QImage& origImage)
 
   if (origImage.isNull())
   {
-    log::warning() << "image to write is null";
+    log::warning() << "source image is null";
     return false;
   }
 
   QImage qimage = origImage.convertToFormat(QImage::Format_RGBA8888);
+
+  if (qimage.isNull())
+  {
+    log::warning() << "source image format conversion failed";
+    return false;
+  }
 
   try
   {
@@ -238,18 +244,42 @@ bool IOHandler::write(const QImage& origImage)
     auto channel = heif_channel_interleaved;
     himage.add_plane(channel, width, height, 32);
 
-    int himgStride;
+    int himgStride = 0;
     uint8_t* himgData = himage.get_plane(channel, &himgStride);
 
-    const uint8_t* qimgData = qimage.bits();
+    if (!himgData)
+    {
+      log::warning() << "could not get libheif image plane";
+      return false;
+    }
+
+    if (himgStride <= 0)
+    {
+      log::warning() << "invalid destination stride: " << himgStride;
+      return false;
+    }
+
+    const uint8_t* qimgData = qimage.constBits();
     const int qimgStride = qimage.bytesPerLine();
 
-    if (qimage.bytesPerLine() > himgStride)
+    if (!qimgData)
+    {
+      log::warning() << "source image data is null";
+      return false;
+    }
+
+    if (qimgStride <= 0)
+    {
+      log::warning() << "invalid source image stride: " << qimgStride;
+      return false;
+    }
+    else if (qimgStride > himgStride)
     {
       log::warning() << "source line larger than destination";
       return false;
     }
 
+    // copy rgba data
     for (int y = 0; y < height; ++y)
     {
       auto* qimgBegin = qimgData + y * qimgStride;
@@ -305,6 +335,8 @@ void IOHandler::setOption(ImageOption opt, const QVariant& value)
       {
         _quality = q;
       }
+
+      return;
     }
 
     default:
