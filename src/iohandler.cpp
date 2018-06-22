@@ -23,18 +23,18 @@ constexpr int kDefaultQuality = 50;  // TODO: maybe adjust this
 
 }  // namespace
 
-namespace heif_image_plugin {
+namespace qtheifimageplugin {
 
 IOHandler::IOHandler()
   : QImageIOHandler(),
     _quality{kDefaultQuality}
 {
-  HEIF_IMAGE_PLUGIN_TRACE("");
+  QTHEIFIMAGEPLUGIN_TRACE("");
 }
 
 IOHandler::~IOHandler()
 {
-  HEIF_IMAGE_PLUGIN_TRACE("");
+  QTHEIFIMAGEPLUGIN_TRACE("");
 }
 
 void IOHandler::updateDevice()
@@ -58,7 +58,7 @@ void IOHandler::updateDevice()
 
 bool IOHandler::canReadFrom(QIODevice& device)
 {
-  HEIF_IMAGE_PLUGIN_TRACE("");
+  QTHEIFIMAGEPLUGIN_TRACE("");
 
   // logic taken from qt macheif plugin
   constexpr int kHeaderSize = 12;
@@ -137,7 +137,7 @@ void IOHandler::loadContext()
 
 bool IOHandler::read(QImage* qimage)
 {
-  HEIF_IMAGE_PLUGIN_TRACE("qimage:" << qimage);
+  QTHEIFIMAGEPLUGIN_TRACE("qimage:" << qimage);
 
   if (!qimage)
   {
@@ -203,7 +203,7 @@ bool IOHandler::read(QImage* qimage)
 
 bool IOHandler::write(const QImage& origImage)
 {
-  HEIF_IMAGE_PLUGIN_TRACE("");
+  QTHEIFIMAGEPLUGIN_TRACE("");
 
   updateDevice();
 
@@ -279,7 +279,7 @@ bool IOHandler::write(const QImage& origImage)
 
 QVariant IOHandler::option(ImageOption option_) const
 {
-  HEIF_IMAGE_PLUGIN_TRACE("option:" << option_);
+  QTHEIFIMAGEPLUGIN_TRACE("option:" << option_);
 
   switch (option_)
   {
@@ -293,7 +293,7 @@ QVariant IOHandler::option(ImageOption option_) const
 
 void IOHandler::setOption(ImageOption option_, const QVariant& value)
 {
-  HEIF_IMAGE_PLUGIN_TRACE("option:" << option_ << ", value:" << value);
+  QTHEIFIMAGEPLUGIN_TRACE("option:" << option_ << ", value:" << value);
 
   switch (option_)
   {
@@ -315,9 +315,9 @@ void IOHandler::setOption(ImageOption option_, const QVariant& value)
 
 bool IOHandler::supportsOption(ImageOption option_) const
 {
-  HEIF_IMAGE_PLUGIN_TRACE("option:" << option_);
+  QTHEIFIMAGEPLUGIN_TRACE("option:" << option_);
 
   return option_ == Quality || option_ == Size;
 }
 
-}  // namespace heif_image_plugin
+}  // namespace qtheifimageplugin

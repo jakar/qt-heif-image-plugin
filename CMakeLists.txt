@@ -4,7 +4,7 @@
 
 cmake_minimum_required(VERSION 3.2)
 
-project(heifimageplugin)
+project(qtheifimageplugin)
 
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -49,10 +49,10 @@ pkg_check_modules(libheif REQUIRED IMPORTED_TARGET libheif>=1.3)
 # logging
 #
 
-set(HEIF_IMAGE_PLUGIN_ENABLE_TRACE OFF CACHE BOOL "Enable trace logging")
+set(QTHEIFIMAGEPLUGIN_ENABLE_TRACE OFF CACHE BOOL "Enable trace logging")
 
-if (${HEIF_IMAGE_PLUGIN_ENABLE_TRACE})
-  add_definitions(-DHEIF_IMAGE_PLUGIN_ENABLE_TRACE)
+if (${QTHEIFIMAGEPLUGIN_ENABLE_TRACE})
+  add_definitions(-DQTHEIFIMAGEPLUGIN_ENABLE_TRACE)
 endif ()
 
 #
@@ -67,10 +67,10 @@ include_directories(
 
 file(GLOB sources src/*.cpp)
 
-add_library(heifimageplugin MODULE ${sources})
+add_library(qtheifimageplugin MODULE ${sources})
 
 target_link_libraries(
-  heifimageplugin
+  qtheifimageplugin
   PRIVATE
   Qt5::Gui
   PkgConfig::libheif
@@ -99,5 +99,5 @@ else ()
   message(FATAL_ERROR "Qt5 plugin directory cannot be detected.")
 endif ()
 
-install(TARGETS heifimageplugin
+install(TARGETS qtheifimageplugin
         LIBRARY DESTINATION "${QT_PLUGINS_DIR}/imageformats")

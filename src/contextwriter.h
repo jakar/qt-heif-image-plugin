@@ -1,11 +1,11 @@
-#ifndef HEIF_IMAGE_PLUGIN_CONTEXTWRITER_H_
-#define HEIF_IMAGE_PLUGIN_CONTEXTWRITER_H_
+#ifndef QTHEIFIMAGEPLUGIN_CONTEXTWRITER_H_
+#define QTHEIFIMAGEPLUGIN_CONTEXTWRITER_H_
 
 #include <libheif/heif_cxx.h>
 
 #include <QIODevice>
 
-namespace heif_image_plugin {
+namespace qtheifimageplugin {
 
 class ContextWriter : public heif::Context::Writer
 {
@@ -20,6 +20,6 @@ class ContextWriter : public heif::Context::Writer
   QIODevice& _device;
 };
 
-}  // namespace heif_image_plugin
+}  // namespace qtheifimageplugin
 
-#endif  // HEIF_IMAGE_PLUGIN_CONTEXTWRITER_H_
+#endif  // QTHEIFIMAGEPLUGIN_CONTEXTWRITER_H_

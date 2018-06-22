@@ -1,5 +1,5 @@
-#ifndef HEIF_IMAGE_PLUGIN_IO_HANDLER_H_
-#define HEIF_IMAGE_PLUGIN_IO_HANDLER_H_
+#ifndef QTHEIFIMAGEPLUGIN_IO_HANDLER_H_
+#define QTHEIFIMAGEPLUGIN_IO_HANDLER_H_
 
 #include <libheif/heif_cxx.h>
 
@@ -9,7 +9,7 @@
 
 #include <memory>
 
-namespace heif_image_plugin {
+namespace qtheifimageplugin {
 
 class IOHandler : public QImageIOHandler
 {
@@ -63,6 +63,6 @@ class IOHandler : public QImageIOHandler
   int _quality;
 };
 
-}  // namespace heif_image_plugin
+}  // namespace qtheifimageplugin
 
-#endif  // HEIF_IMAGE_PLUGIN_IO_HANDLER_H_
+#endif  // QTHEIFIMAGEPLUGIN_IO_HANDLER_H_

@@ -1,9 +1,9 @@
-#ifndef HEIF_IMAGE_PLUGIN_PLUGIN_H_
-#define HEIF_IMAGE_PLUGIN_PLUGIN_H_
+#ifndef QTHEIFIMAGEPLUGIN_PLUGIN_H_
+#define QTHEIFIMAGEPLUGIN_PLUGIN_H_
 
 #include <QImageIOPlugin>
 
-namespace heif_image_plugin {
+namespace qtheifimageplugin {
 
 class Plugin : public QImageIOPlugin
 {
@@ -22,6 +22,6 @@ class Plugin : public QImageIOPlugin
                           const QByteArray& format = QByteArray()) const override;
 };
 
-}  // namespace heif_image_plugin
+}  // namespace qtheifimageplugin
 
-#endif  // HEIF_IMAGE_PLUGIN_PLUGIN_H_
+#endif  // QTHEIFIMAGEPLUGIN_PLUGIN_H_

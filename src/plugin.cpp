@@ -2,7 +2,7 @@
 
 #include "iohandler.h"
 
-namespace heif_image_plugin {
+namespace qtheifimageplugin {
 
 Plugin::Plugin(QObject* parent_)
   : QImageIOPlugin(parent_)
@@ -58,4 +58,4 @@ QImageIOHandler* Plugin::create(QIODevice* device,
   return ioHandler;
 }
 
-}  // namespace heif_image_plugin
+}  // namespace qtheifimageplugin

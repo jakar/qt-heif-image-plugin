@@ -20,7 +20,7 @@ constexpr heif_error kWriteError{
 
 }  // namespace
 
-namespace heif_image_plugin {
+namespace qtheifimageplugin {
 
 ContextWriter::ContextWriter(QIODevice& device)
   : _device(device)
@@ -43,4 +43,4 @@ heif_error ContextWriter::write(const void* data, size_t size)
   return kOkError;
 }
 
-}  // namespace heif_image_plugin
+}  // namespace qtheifimageplugin
