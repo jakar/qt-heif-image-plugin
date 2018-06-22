@@ -106,7 +106,8 @@ void IOHandler::loadContext()
     return;
   }
 
-  auto fileData = device()->readAll();
+  auto rs = util::make_unique_aggregate<ReadState>(device()->readAll());
+  const auto& fileData = rs->fileData;
 
   if (fileData.isEmpty())
   {
@@ -115,31 +116,23 @@ void IOHandler::loadContext()
   }
 
   // set up new context
-  auto readState = util::make_unique<ReadState>();
-  auto& context = readState->context;
+  rs->context.read_from_memory_without_copy(fileData.data(), fileData.size());
+  rs->handle = rs->context.get_primary_image_handle();
 
-  context.read_from_memory(fileData.data(), fileData.size());
-
-  auto handle = context.get_primary_image_handle();
-  readState->image = handle.decode_image(heif_colorspace_RGB,
-                                         heif_chroma_interleaved_RGBA);
-
-  _readState = std::move(readState);
-}
-
-QSize IOHandler::getImageSize() const
-{
-  if (!_readState)
-  {
-    // return invalid size
-    qDebug() << "no image data to read size";
-    return {};
-  }
+  rs->image = rs->handle.decode_image(heif_colorspace_RGB,
+                                      heif_chroma_interleaved_RGBA);
 
   auto chan = heif_channel_interleaved;
-  auto& img = _readState->image;
+  rs->size = QSize(rs->image.get_width(chan), rs->image.get_height(chan));
 
-  return {img.get_width(chan), img.get_height(chan)};
+  if (!rs->size.isValid())
+  {
+    qDebug() << "invalid image size:"
+      << rs->size.width() << "x" << rs->size.height();
+    return;
+  }
+
+  _readState = std::move(rs);
 }
 
 bool IOHandler::read(QImage* qimage)
@@ -163,16 +156,21 @@ bool IOHandler::read(QImage* qimage)
     }
 
     auto& himage = _readState->image;
+    const auto& imgSize = _readState->size;
     auto channel = heif_channel_interleaved;
 
     int stride = 0;
     const uint8_t* data = himage.get_plane(channel, &stride);
 
-    auto imgSize = getImageSize();
-
-    if (!imgSize.isValid())
+    if (!data)
     {
-      qWarning() << "invalid image size";
+      qWarning() << "pixel data not found";
+      return false;
+    }
+
+    if (stride <= 0)
+    {
+      qWarning() << "invalid stride:" << stride;
       return false;
     }
 
@@ -286,10 +284,7 @@ QVariant IOHandler::option(ImageOption option_) const
   switch (option_)
   {
     case Size:
-    {
-      QSize size = getImageSize();
-      return size.isValid() ? size : QVariant{};
-    }
+      return _readState ? _readState->size : QVariant{};
 
     default:
       return {};

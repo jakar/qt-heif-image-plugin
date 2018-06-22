@@ -31,8 +31,11 @@ class IOHandler : public QImageIOHandler
  private:
   struct ReadState
   {
+    const QByteArray fileData;
     heif::Context context{};
+    heif::ImageHandle handle{};
     heif::Image image{};
+    QSize size{};
   };
 
   IOHandler(const IOHandler& handler) = delete;
@@ -48,11 +51,6 @@ class IOHandler : public QImageIOHandler
    * Throws heif::Error.
    */
   void loadContext();
-
-  /**
-   * Returns size from previously loaded image data.
-   */
-  QSize getImageSize() const;
 
   //
   // Private data
