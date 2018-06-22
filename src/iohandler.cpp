@@ -9,13 +9,12 @@
 
 #include <libheif/heif_cxx.h>
 
-#include <QDebug>
 #include <QImage>
 #include <QSize>
 #include <QVariant>
 
 #include "util.h"
-#include "trace.h"
+#include "log.h"
 
 namespace {
 
@@ -29,19 +28,19 @@ IOHandler::IOHandler()
   : QImageIOHandler(),
     _quality{kDefaultQuality}
 {
-  QTHEIFIMAGEPLUGIN_TRACE("");
+  QTHEIFIMAGEPLUGIN_LOG_TRACE("");
 }
 
 IOHandler::~IOHandler()
 {
-  QTHEIFIMAGEPLUGIN_TRACE("");
+  QTHEIFIMAGEPLUGIN_LOG_TRACE("");
 }
 
 void IOHandler::updateDevice()
 {
   if (!device())
   {
-    qWarning() << "device is null";
+    log::warning() << "device is null";
     Q_ASSERT(_readState == nullptr);
   }
 
@@ -58,7 +57,7 @@ void IOHandler::updateDevice()
 
 bool IOHandler::canReadFrom(QIODevice& device)
 {
-  QTHEIFIMAGEPLUGIN_TRACE("");
+  QTHEIFIMAGEPLUGIN_LOG_TRACE("");
 
   // logic taken from qt macheif plugin
   constexpr int kHeaderSize = 12;
@@ -66,7 +65,7 @@ bool IOHandler::canReadFrom(QIODevice& device)
 
   if (header.size() != kHeaderSize)
   {
-    qWarning() << "could not read header";
+    log::debug() << "could not read header";
     return false;
   }
 
@@ -111,7 +110,7 @@ void IOHandler::loadContext()
 
   if (fileData.isEmpty())
   {
-    qWarning() << "failed to read file data";
+    log::debug() << "failed to read file data";
     return;
   }
 
@@ -127,7 +126,7 @@ void IOHandler::loadContext()
 
   if (!rs->size.isValid())
   {
-    qDebug() << "invalid image size:"
+    log::debug() << "invalid image size: "
       << rs->size.width() << "x" << rs->size.height();
     return;
   }
@@ -137,11 +136,11 @@ void IOHandler::loadContext()
 
 bool IOHandler::read(QImage* qimage)
 {
-  QTHEIFIMAGEPLUGIN_TRACE("qimage:" << qimage);
+  QTHEIFIMAGEPLUGIN_LOG_TRACE("");
 
   if (!qimage)
   {
-    qWarning() << "image is null";
+    log::warning() << "QImage to read into is null";
     return false;
   }
 
@@ -151,7 +150,7 @@ bool IOHandler::read(QImage* qimage)
 
     if (!_readState)
     {
-      qWarning() << "failed to decode image";
+      log::debug() << "failed to decode image";
       return false;
     }
 
@@ -164,13 +163,13 @@ bool IOHandler::read(QImage* qimage)
 
     if (!data)
     {
-      qWarning() << "pixel data not found";
+      log::warning() << "pixel data not found";
       return false;
     }
 
     if (stride <= 0)
     {
-      qWarning() << "invalid stride:" << stride;
+      log::warning() << "invalid stride: " << stride;
       return false;
     }
 
@@ -191,7 +190,7 @@ bool IOHandler::read(QImage* qimage)
   }
   catch (const heif::Error& error)
   {
-    qWarning() << "libheif read error:" << error.get_message().c_str();
+    log::warning() << "libheif read error: " << error.get_message().c_str();
   }
 
   return false;
@@ -203,19 +202,19 @@ bool IOHandler::read(QImage* qimage)
 
 bool IOHandler::write(const QImage& origImage)
 {
-  QTHEIFIMAGEPLUGIN_TRACE("");
+  QTHEIFIMAGEPLUGIN_LOG_TRACE("");
 
   updateDevice();
 
   if (!device())
   {
-    qWarning() << "device null before write";
+    log::warning() << "device null before write";
     return false;
   }
 
   if (origImage.isNull())
   {
-    qWarning() << "image to write is null";
+    log::warning() << "image to write is null";
     return false;
   }
 
@@ -247,7 +246,7 @@ bool IOHandler::write(const QImage& origImage)
 
     if (qimage.bytesPerLine() > himgStride)
     {
-      qWarning() << "source line larger than destination";
+      log::warning() << "source line larger than destination";
       return false;
     }
 
@@ -267,7 +266,7 @@ bool IOHandler::write(const QImage& origImage)
   }
   catch (const heif::Error& error)
   {
-    qWarning() << "libheif write error:" << error.get_message().c_str();
+    log::warning() << "libheif write error: " << error.get_message().c_str();
   }
 
   return false;
@@ -277,11 +276,11 @@ bool IOHandler::write(const QImage& origImage)
 // Options
 //
 
-QVariant IOHandler::option(ImageOption option_) const
+QVariant IOHandler::option(ImageOption opt) const
 {
-  QTHEIFIMAGEPLUGIN_TRACE("option:" << option_);
+  QTHEIFIMAGEPLUGIN_LOG_TRACE("opt: " << opt);
 
-  switch (option_)
+  switch (opt)
   {
     case Size:
       return _readState ? _readState->size : QVariant{};
@@ -291,11 +290,11 @@ QVariant IOHandler::option(ImageOption option_) const
   }
 }
 
-void IOHandler::setOption(ImageOption option_, const QVariant& value)
+void IOHandler::setOption(ImageOption opt, const QVariant& value)
 {
-  QTHEIFIMAGEPLUGIN_TRACE("option:" << option_ << ", value:" << value);
+  QTHEIFIMAGEPLUGIN_LOG_TRACE("opt: " << opt << ", value: " << value);
 
-  switch (option_)
+  switch (opt)
   {
     case Quality:
     {
@@ -313,11 +312,11 @@ void IOHandler::setOption(ImageOption option_, const QVariant& value)
   }
 }
 
-bool IOHandler::supportsOption(ImageOption option_) const
+bool IOHandler::supportsOption(ImageOption opt) const
 {
-  QTHEIFIMAGEPLUGIN_TRACE("option:" << option_);
+  QTHEIFIMAGEPLUGIN_LOG_TRACE("opt: " << opt);
 
-  return option_ == Quality || option_ == Size;
+  return opt == Quality || opt == Size;
 }
 
 }  // namespace qtheifimageplugin
