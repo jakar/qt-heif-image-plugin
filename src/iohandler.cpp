@@ -13,8 +13,8 @@
 #include <QSize>
 #include <QVariant>
 
-#include "util.h"
 #include "log.h"
+#include "util.h"
 
 namespace {
 
