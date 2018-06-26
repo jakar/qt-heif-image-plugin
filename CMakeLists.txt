@@ -4,13 +4,26 @@
 
 cmake_minimum_required(VERSION 3.2)
 
-project(qtheifimageplugin)
+project(
+  qtheifimageplugin
+  DESCRIPTION "HEIF plugin for Qt")
 
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/imageformats")
+
+# make release build, if not specified
+# (from https://blog.kitware.com/cmake-and-the-default-build-type/)
+set(default_build_type "RelWithDebInfo")
+
+if (NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+  set(CMAKE_BUILD_TYPE "${default_build_type}" CACHE STRING "Build type" FORCE)
+  set_property(
+    CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS
+    "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
+endif ()
 
 # compiler flags
 # TODO: separate GCC and Clang warnings; add more
@@ -22,8 +35,7 @@ set(
   -Wformat-nonliteral \
   -Wformat-security \
   -Wnon-virtual-dtor \
-  "
-)
+  ")
 
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Og")
 
@@ -77,9 +89,10 @@ target_link_libraries(
 )
 
 #
-# installation (adapted from lxqt-qtplugin)
+# installation
 #
 
+# Use qmake to find plugin dir (adapted from lxqt-qtplugin)
 get_target_property(
   QT_QMAKE_EXECUTABLE ${Qt5Core_QMAKE_EXECUTABLE} IMPORTED_LOCATION)
 
@@ -90,14 +103,22 @@ endif ()
 execute_process(
   COMMAND ${QT_QMAKE_EXECUTABLE} -query QT_INSTALL_PLUGINS
   OUTPUT_VARIABLE QT_PLUGINS_DIR
-  OUTPUT_STRIP_TRAILING_WHITESPACE
-)
+  OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 if (QT_PLUGINS_DIR)
-  message(STATUS "Qt5 plugin directory:" "${QT_PLUGINS_DIR}")
+  message(STATUS "Qt5 plugin directory: " "${QT_PLUGINS_DIR}")
 else ()
   message(FATAL_ERROR "Qt5 plugin directory cannot be detected.")
 endif ()
 
-install(TARGETS qtheifimageplugin
-        LIBRARY DESTINATION "${QT_PLUGINS_DIR}/imageformats")
+# Prefix with DESTDIR if available to allow packaging
+if (DESTDIR AND NOT DESTDIR STREQUAL "")
+  set(plugins_dir "$ENV{DESTDIR}${QT_PLUGINS_DIR}")
+else ()
+  set(plugins_dir "${QT_PLUGINS_DIR}")
+endif ()
+
+install(
+  TARGETS qtheifimageplugin
+  LIBRARY DESTINATION "${plugins_dir}/imageformats")
+
