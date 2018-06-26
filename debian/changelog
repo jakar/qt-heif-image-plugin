@@ -1,3 +1,23 @@
+qt-heif-image-plugin (0.2-1) unstable; urgency=medium
+
+  [ Xu Shaohua ]
+  * Ignore deb object files
+  * debian: Update project homepage
+
+  [ Jake Harr ]
+  * Fix giant memory leak
+  * cmake: Add sanitizer flags
+  * Remove redundant data copy; add checks
+  * cmake: Require libheif 1.3
+  * Change macro/namespace/lib names
+  * Improve logging
+  * Add write checks
+  * Sort includes
+  * debian: Require libheif >= 1.3
+  * cmake: Use DESTDIR if available
+
+ -- Jake Harr <jakeharr@gmail.com>  Tue, 26 Jun 2018 14:52:06 -0400
+
 qt-heif-image-plugin (0.1-2) unstable; urgency=medium
 
   * Fixed header parse error
