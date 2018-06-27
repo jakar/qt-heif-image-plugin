@@ -1,3 +1,5 @@
+build*/
+tmp/
 
 debian/.debhelper/
 debian/debhelper-build-stamp
