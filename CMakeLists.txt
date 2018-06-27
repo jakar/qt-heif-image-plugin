@@ -2,11 +2,9 @@
 # qt-heif-image-plugin listfile
 #
 
-cmake_minimum_required(VERSION 3.2)
+cmake_minimum_required(VERSION 3.5)  # lowest version tried
 
-project(
-  qtheifimageplugin
-  DESCRIPTION "HEIF plugin for Qt")
+project(qtheifimageplugin)
 
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -55,7 +53,7 @@ set(CMAKE_AUTOMOC ON)
 
 # libheif
 find_package(PkgConfig)
-pkg_check_modules(libheif REQUIRED IMPORTED_TARGET libheif>=1.3)
+pkg_check_modules(libheif REQUIRED libheif>=1.3)
 
 #
 # logging
@@ -85,7 +83,7 @@ target_link_libraries(
   qtheifimageplugin
   PRIVATE
   Qt5::Gui
-  PkgConfig::libheif
+  ${libheif_LIBRARIES}
 )
 
 #
@@ -112,7 +110,7 @@ else ()
 endif ()
 
 # Prefix with DESTDIR if available to allow packaging
-if (DESTDIR AND NOT DESTDIR STREQUAL "")
+if (ENV{DESTDIR} AND NOT ENV{DESTDIR} STREQUAL "")
   set(plugins_dir "$ENV{DESTDIR}${QT_PLUGINS_DIR}")
 else ()
   set(plugins_dir "${QT_PLUGINS_DIR}")
