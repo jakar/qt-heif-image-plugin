@@ -87,7 +87,7 @@ IOHandler::Format IOHandler::canReadFrom(QIODevice& device)
   {
     return Format::heifSequence;
   }
-  else if (w2 == "heic" || w2 == "heic")
+  else if (w2 == "heic" || w2 == "heix")
   {
     return Format::heic;
   }
