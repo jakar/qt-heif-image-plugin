@@ -14,6 +14,15 @@ namespace qtheifimageplugin {
 class IOHandler : public QImageIOHandler
 {
  public:
+  enum class Format
+  {
+    none,
+    heif,
+    heifSequence,
+    heic,
+    heicSequence,
+  };
+
   explicit IOHandler();
   virtual ~IOHandler();
 
@@ -26,7 +35,7 @@ class IOHandler : public QImageIOHandler
   void setOption(ImageOption option, const QVariant& value) override;
   bool supportsOption(ImageOption option) const override;
 
-  static bool canReadFrom(QIODevice& device);
+  static Format canReadFrom(QIODevice& device);
 
  private:
   struct ReadState

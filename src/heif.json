@@ -1,4 +1,7 @@
 {
-  "Keys": ["heic", "heif"],
-  "MimeTypes": ["image/heic", "image/heic"]
+  "Keys": ["heic", "heif", "heics", "heifs"],
+  "MimeTypes": [
+    "image/heic", "image/heif",
+    "image/heic-sequence", "image/heif-sequence"
+  ]
 }

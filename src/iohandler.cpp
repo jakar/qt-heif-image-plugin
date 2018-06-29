@@ -55,35 +55,84 @@ void IOHandler::updateDevice()
 // Peeking
 //
 
-bool IOHandler::canReadFrom(QIODevice& device)
+IOHandler::Format IOHandler::canReadFrom(QIODevice& device)
 {
   QTHEIFIMAGEPLUGIN_LOG_TRACE("");
 
-  // logic taken from qt macheif plugin
+  // read beginning of ftyp box at beginning of file
   constexpr int kHeaderSize = 12;
   QByteArray header = device.peek(kHeaderSize);
 
   if (header.size() != kHeaderSize)
   {
-    log::debug() << "could not read header";
-    return false;
+    return Format::none;
   }
 
+  // skip first four bytes, which contain box size
   const QByteArray w1 = header.mid(4, 4);
   const QByteArray w2 = header.mid(8, 4);
 
-  return w1 == "ftyp" && (w2 == "heic" || w2 == "heix" || w2 == "mifi");
+  if (w1 != "ftyp")
+  {
+    // not an ftyp box
+    return Format::none;
+  }
+
+  // brand follows box name, determines format
+  if (w2 == "mif1")
+  {
+    return Format::heif;
+  }
+  else if (w2 == "msf1")
+  {
+    return Format::heifSequence;
+  }
+  else if (w2 == "heic" || w2 == "heic")
+  {
+    return Format::heic;
+  }
+  else if (w2 == "hevc" || w2 == "hevx")
+  {
+    return Format::heicSequence;
+  }
+  else
+  {
+    return Format::none;
+  }
 }
 
 bool IOHandler::canRead() const
 {
-  if (device() && canReadFrom(*device()))
+  if (!device())
   {
-    setFormat("heic");  // bastardized const
-    return true;
+    return false;
   }
 
-  return false;
+  auto format = canReadFrom(*device());
+
+  // Other image plugins set the format here. Not sure if it is really
+  // necessary or what it accomplishes.
+  switch (format)
+  {
+    case Format::heif:
+      setFormat("heif");
+      return true;
+
+    case Format::heifSequence:
+      setFormat("heifs");
+      return true;
+
+    case Format::heic:
+      setFormat("heic");
+      return true;
+
+    case Format::heicSequence:
+      setFormat("heics");
+      return true;
+
+    default:
+      return false;
+  }
 }
 
 //
