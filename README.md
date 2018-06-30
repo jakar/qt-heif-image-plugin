@@ -42,5 +42,6 @@ application's binary.
 Any application that (directly or indirectly) uses `QImageReader` to open image
 files should automatically be able to use this plugin.
 
-So far, this has been successfully used with
-[LXImage-Qt](https://github.com/lxqt/lximage-qt).
+This has been successfully used with
+[LXImage-Qt](https://github.com/lxqt/lximage-qt). To test the plugin,
+[Dumageview](https://github.com/jakar/dumageview) was created.
