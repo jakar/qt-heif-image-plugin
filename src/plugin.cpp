@@ -16,7 +16,8 @@ Plugin::~Plugin()
 Plugin::Capabilities Plugin::capabilities(QIODevice* device,
                                           const QByteArray& format) const
 {
-  const bool formatOK = (format == "heic" || format == "heif");
+  const bool formatOK = (format == "heic" || format == "heics"
+                         || format == "heif" || format == "heifs");
 
   if (!formatOK && !format.isEmpty())
   {
