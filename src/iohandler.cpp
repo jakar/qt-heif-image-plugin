@@ -164,11 +164,11 @@ void IOHandler::loadContext()
     _readState = std::move(rs);
 }
 
-bool IOHandler::read(QImage* qimage)
+bool IOHandler::read(QImage* destImage)
 {
     QTHEIFIMAGEPLUGIN_LOG_TRACE("");
 
-    if (!qimage) {
+    if (!destImage) {
         log::warning() << "QImage to read into is null";
         return false;
     }
@@ -181,12 +181,12 @@ bool IOHandler::read(QImage* qimage)
             return false;
         }
 
-        auto& himage = _readState->image;
+        auto& srcImage = _readState->image;
         const auto& imgSize = _readState->size;
         auto channel = heif_channel_interleaved;
 
         int stride = 0;
-        const uint8_t* data = himage.get_plane(channel, &stride);
+        const uint8_t* data = srcImage.get_plane(channel, &stride);
 
         if (!data) {
             log::warning() << "pixel data not found";
@@ -204,7 +204,7 @@ bool IOHandler::read(QImage* qimage)
 
         std::copy(data, data + dataSize, dataCopy);
 
-        *qimage = QImage(
+        *destImage = QImage(
             dataCopy, imgSize.width(), imgSize.height(),
             stride, QImage::Format_RGBA8888,
             [](void* d) { delete[] static_cast<uint8_t*>(d); },
@@ -224,7 +224,7 @@ bool IOHandler::read(QImage* qimage)
 // Writing
 //
 
-bool IOHandler::write(const QImage& origImage)
+bool IOHandler::write(const QImage& preConvSrcImage)
 {
     QTHEIFIMAGEPLUGIN_LOG_TRACE("");
 
@@ -235,14 +235,14 @@ bool IOHandler::write(const QImage& origImage)
         return false;
     }
 
-    if (origImage.isNull()) {
+    if (preConvSrcImage.isNull()) {
         log::warning() << "source image is null";
         return false;
     }
 
-    QImage qimage = origImage.convertToFormat(QImage::Format_RGBA8888);
+    QImage srcImage = preConvSrcImage.convertToFormat(QImage::Format_RGBA8888);
 
-    if (qimage.isNull()) {
+    if (srcImage.isNull()) {
         log::warning() << "source image format conversion failed";
         return false;
     }
@@ -253,54 +253,54 @@ bool IOHandler::write(const QImage& origImage)
         heif::Encoder encoder(heif_compression_HEVC);
         encoder.set_lossy_quality(_quality);
 
-        int width = qimage.width();
-        int height = qimage.height();
+        int width = srcImage.width();
+        int height = srcImage.height();
 
-        heif::Image himage{};
-        himage.create(width, height,
-                      heif_colorspace_RGB,
-                      heif_chroma_interleaved_RGBA);
+        heif::Image destImage{};
+        destImage.create(width, height,
+                         heif_colorspace_RGB,
+                         heif_chroma_interleaved_RGBA);
 
         auto channel = heif_channel_interleaved;
-        himage.add_plane(channel, width, height, 32);
+        destImage.add_plane(channel, width, height, 32);
 
-        int himgStride = 0;
-        uint8_t* himgData = himage.get_plane(channel, &himgStride);
+        int destStride = 0;
+        uint8_t* destData = destImage.get_plane(channel, &destStride);
 
-        if (!himgData) {
+        if (!destData) {
             log::warning() << "could not get libheif image plane";
             return false;
         }
 
-        if (himgStride <= 0) {
-            log::warning() << "invalid destination stride: " << himgStride;
+        if (destStride <= 0) {
+            log::warning() << "invalid destination stride: " << destStride;
             return false;
         }
 
-        const uint8_t* qimgData = qimage.constBits();
-        const int qimgStride = qimage.bytesPerLine();
+        const uint8_t* srcData = srcImage.constBits();
+        const int srcStride = srcImage.bytesPerLine();
 
-        if (!qimgData) {
+        if (!srcData) {
             log::warning() << "source image data is null";
             return false;
         }
 
-        if (qimgStride <= 0) {
-            log::warning() << "invalid source image stride: " << qimgStride;
+        if (srcStride <= 0) {
+            log::warning() << "invalid source image stride: " << srcStride;
             return false;
-        } else if (qimgStride > himgStride) {
+        } else if (srcStride > destStride) {
             log::warning() << "source line larger than destination";
             return false;
         }
 
         // copy rgba data
         for (int y = 0; y < height; ++y) {
-            auto* qimgBegin = qimgData + y * qimgStride;
-            auto* qimgEnd = qimgBegin + qimgStride;
-            std::copy(qimgBegin, qimgEnd, himgData + y * himgStride);
+            auto* srcBegin = srcData + y * srcStride;
+            auto* srcEnd = srcBegin + srcStride;
+            std::copy(srcBegin, srcEnd, destData + y * destStride);
         }
 
-        context.encode_image(himage, encoder);
+        context.encode_image(destImage, encoder);
 
         ContextWriter writer(*device());
         context.write(writer);
