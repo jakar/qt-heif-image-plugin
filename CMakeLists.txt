@@ -53,7 +53,7 @@ set(CMAKE_AUTOMOC ON)
 
 # libheif
 find_package(PkgConfig)
-pkg_check_modules(libheif REQUIRED libheif>=1.3)
+pkg_check_modules(libheif REQUIRED libheif>=1.2)
 
 #
 # logging

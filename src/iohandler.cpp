@@ -123,6 +123,19 @@ bool IOHandler::canRead() const
 // Reading
 //
 
+namespace {
+
+void readContextFromMemory(heif::Context& context, const void* mem, size_t size)
+{
+#if LIBHEIF_NUMERIC_VERSION >= 0x01030000
+    context.read_from_memory_without_copy(mem, size);
+#else
+    context.read_from_memory(mem, size);
+#endif
+}
+
+}  // namespace
+
 void IOHandler::loadContext()
 {
     updateDevice();
@@ -137,15 +150,14 @@ void IOHandler::loadContext()
     }
 
     std::unique_ptr<ReadState> rs(new ReadState{device()->readAll()});
-    const auto& fileData = rs->fileData;
 
-    if (fileData.isEmpty()) {
+    if (rs->fileData.isEmpty()) {
         log::debug() << "failed to read file data";
         return;
     }
 
     // set up new context
-    rs->context.read_from_memory_without_copy(fileData.data(), fileData.size());
+    readContextFromMemory(rs->context, rs->fileData.data(), rs->fileData.size());
     rs->handle = rs->context.get_primary_image_handle();
 
     rs->image = rs->handle.decode_image(heif_colorspace_RGB,
