@@ -26,6 +26,9 @@ public:
     explicit IOHandler();
     virtual ~IOHandler();
 
+    IOHandler(const IOHandler& handler) = delete;
+    IOHandler& operator=(const IOHandler& handler) = delete;
+
     bool canRead() const override;
     bool read(QImage* image) override;
 
@@ -50,9 +53,6 @@ private:
         heif::Image image{};
         QSize size{};
     };
-
-    IOHandler(const IOHandler& handler) = delete;
-    IOHandler& operator=(const IOHandler& handler) = delete;
 
     /**
      * Updates device and associated state upon device change.
