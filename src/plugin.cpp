@@ -4,15 +4,6 @@
 
 namespace qtheifimageplugin {
 
-Plugin::Plugin(QObject* parent_) :
-    QImageIOPlugin(parent_)
-{
-}
-
-Plugin::~Plugin()
-{
-}
-
 Plugin::Capabilities Plugin::capabilities(QIODevice* device,
                                           const QByteArray& format) const
 {

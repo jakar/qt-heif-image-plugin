@@ -12,8 +12,9 @@ class Plugin : public QImageIOPlugin
                       FILE "heif.json");
 
 public:
-    Plugin(QObject* parent_ = nullptr);
-    virtual ~Plugin();
+    using QImageIOPlugin::QImageIOPlugin;
+
+    virtual ~Plugin() = default;
 
     Capabilities capabilities(QIODevice* device,
                               const QByteArray& format) const override;
