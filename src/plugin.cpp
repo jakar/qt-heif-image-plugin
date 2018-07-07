@@ -19,33 +19,26 @@ Plugin::Capabilities Plugin::capabilities(QIODevice* device,
     const bool formatOK = (format == "heic" || format == "heics"
                            || format == "heif" || format == "heifs");
 
-    if (!formatOK && !format.isEmpty())
-    {
+    if (!formatOK && !format.isEmpty()) {
         return {};
     }
 
-    if (device == nullptr)
-    {
-        if (formatOK)
-        {
+    if (device == nullptr) {
+        if (formatOK) {
             return CanRead | CanWrite;
-        }
-        else
-        {
+        } else {
             return {};
         }
     }
 
+    using F = IOHandler::Format;
     Capabilities caps{};
 
-    if (device->isReadable()
-        && IOHandler::canReadFrom(*device) != IOHandler::Format::none)
-    {
+    if (device->isReadable() && IOHandler::canReadFrom(*device) != F::none) {
         caps |= CanRead;
     }
 
-    if (device->isWritable())
-    {
+    if (device->isWritable()) {
         caps |= CanWrite;
     }
 

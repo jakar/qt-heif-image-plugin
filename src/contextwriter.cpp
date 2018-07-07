@@ -31,8 +31,7 @@ heif_error ContextWriter::write(const void* data, size_t size)
 {
     auto bytesWritten = _device.write(static_cast<const char*>(data), size);
 
-    if (bytesWritten != static_cast<int64_t>(size))
-    {
+    if (bytesWritten != static_cast<int64_t>(size)) {
         log::warning() << "write failed: "
             << bytesWritten << " / " << size << " bytes written";
 

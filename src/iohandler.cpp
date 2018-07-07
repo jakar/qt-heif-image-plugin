@@ -38,14 +38,12 @@ IOHandler::~IOHandler()
 
 void IOHandler::updateDevice()
 {
-    if (!device())
-    {
+    if (!device()) {
         log::warning() << "device is null";
         Q_ASSERT(_readState == nullptr);
     }
 
-    if (device() != _device)
-    {
+    if (device() != _device) {
         _device = device();
         _readState.reset();
     }
@@ -63,8 +61,7 @@ IOHandler::Format IOHandler::canReadFrom(QIODevice& device)
     constexpr int kHeaderSize = 12;
     QByteArray header = device.peek(kHeaderSize);
 
-    if (header.size() != kHeaderSize)
-    {
+    if (header.size() != kHeaderSize) {
         return Format::none;
     }
 
@@ -72,39 +69,28 @@ IOHandler::Format IOHandler::canReadFrom(QIODevice& device)
     const QByteArray w1 = header.mid(4, 4);
     const QByteArray w2 = header.mid(8, 4);
 
-    if (w1 != "ftyp")
-    {
+    if (w1 != "ftyp") {
         // not an ftyp box
         return Format::none;
     }
 
     // brand follows box name, determines format
-    if (w2 == "mif1")
-    {
+    if (w2 == "mif1") {
         return Format::heif;
-    }
-    else if (w2 == "msf1")
-    {
+    } else if (w2 == "msf1") {
         return Format::heifSequence;
-    }
-    else if (w2 == "heic" || w2 == "heix")
-    {
+    } else if (w2 == "heic" || w2 == "heix") {
         return Format::heic;
-    }
-    else if (w2 == "hevc" || w2 == "hevx")
-    {
+    } else if (w2 == "hevc" || w2 == "hevx") {
         return Format::heicSequence;
-    }
-    else
-    {
+    } else {
         return Format::none;
     }
 }
 
 bool IOHandler::canRead() const
 {
-    if (!device())
-    {
+    if (!device()) {
         return false;
     }
 
@@ -112,8 +98,7 @@ bool IOHandler::canRead() const
 
     // Other image plugins set the format here. Not sure if it is really
     // necessary or what it accomplishes.
-    switch (format)
-    {
+    switch (format) {
     case Format::heif:
         setFormat("heif");
         return true;
@@ -143,13 +128,11 @@ void IOHandler::loadContext()
 {
     updateDevice();
 
-    if (!device())
-    {
+    if (!device()) {
         return;
     }
 
-    if (_readState)
-    {
+    if (_readState) {
         // context already loded
         return;
     }
@@ -157,8 +140,7 @@ void IOHandler::loadContext()
     auto rs = util::make_unique_aggregate<ReadState>(device()->readAll());
     const auto& fileData = rs->fileData;
 
-    if (fileData.isEmpty())
-    {
+    if (fileData.isEmpty()) {
         log::debug() << "failed to read file data";
         return;
     }
@@ -173,8 +155,7 @@ void IOHandler::loadContext()
     auto chan = heif_channel_interleaved;
     rs->size = QSize(rs->image.get_width(chan), rs->image.get_height(chan));
 
-    if (!rs->size.isValid())
-    {
+    if (!rs->size.isValid()) {
         log::debug() << "invalid image size: "
             << rs->size.width() << "x" << rs->size.height();
         return;
@@ -187,18 +168,15 @@ bool IOHandler::read(QImage* qimage)
 {
     QTHEIFIMAGEPLUGIN_LOG_TRACE("");
 
-    if (!qimage)
-    {
+    if (!qimage) {
         log::warning() << "QImage to read into is null";
         return false;
     }
 
-    try
-    {
+    try {
         loadContext();
 
-        if (!_readState)
-        {
+        if (!_readState) {
             log::debug() << "failed to decode image";
             return false;
         }
@@ -210,14 +188,12 @@ bool IOHandler::read(QImage* qimage)
         int stride = 0;
         const uint8_t* data = himage.get_plane(channel, &stride);
 
-        if (!data)
-        {
+        if (!data) {
             log::warning() << "pixel data not found";
             return false;
         }
 
-        if (stride <= 0)
-        {
+        if (stride <= 0) {
             log::warning() << "invalid stride: " << stride;
             return false;
         }
@@ -236,9 +212,8 @@ bool IOHandler::read(QImage* qimage)
         );
 
         return true;
-    }
-    catch (const heif::Error& error)
-    {
+
+    } catch (const heif::Error& error) {
         log::warning() << "libheif read error: " << error.get_message().c_str();
     }
 
@@ -255,28 +230,24 @@ bool IOHandler::write(const QImage& origImage)
 
     updateDevice();
 
-    if (!device())
-    {
+    if (!device()) {
         log::warning() << "device null before write";
         return false;
     }
 
-    if (origImage.isNull())
-    {
+    if (origImage.isNull()) {
         log::warning() << "source image is null";
         return false;
     }
 
     QImage qimage = origImage.convertToFormat(QImage::Format_RGBA8888);
 
-    if (qimage.isNull())
-    {
+    if (qimage.isNull()) {
         log::warning() << "source image format conversion failed";
         return false;
     }
 
-    try
-    {
+    try {
         heif::Context context{};
 
         heif::Encoder encoder(heif_compression_HEVC);
@@ -296,14 +267,12 @@ bool IOHandler::write(const QImage& origImage)
         int himgStride = 0;
         uint8_t* himgData = himage.get_plane(channel, &himgStride);
 
-        if (!himgData)
-        {
+        if (!himgData) {
             log::warning() << "could not get libheif image plane";
             return false;
         }
 
-        if (himgStride <= 0)
-        {
+        if (himgStride <= 0) {
             log::warning() << "invalid destination stride: " << himgStride;
             return false;
         }
@@ -311,26 +280,21 @@ bool IOHandler::write(const QImage& origImage)
         const uint8_t* qimgData = qimage.constBits();
         const int qimgStride = qimage.bytesPerLine();
 
-        if (!qimgData)
-        {
+        if (!qimgData) {
             log::warning() << "source image data is null";
             return false;
         }
 
-        if (qimgStride <= 0)
-        {
+        if (qimgStride <= 0) {
             log::warning() << "invalid source image stride: " << qimgStride;
             return false;
-        }
-        else if (qimgStride > himgStride)
-        {
+        } else if (qimgStride > himgStride) {
             log::warning() << "source line larger than destination";
             return false;
         }
 
         // copy rgba data
-        for (int y = 0; y < height; ++y)
-        {
+        for (int y = 0; y < height; ++y) {
             auto* qimgBegin = qimgData + y * qimgStride;
             auto* qimgEnd = qimgBegin + qimgStride;
             std::copy(qimgBegin, qimgEnd, himgData + y * himgStride);
@@ -342,9 +306,8 @@ bool IOHandler::write(const QImage& origImage)
         context.write(writer);
 
         return true;
-    }
-    catch (const heif::Error& error)
-    {
+
+    } catch (const heif::Error& error) {
         log::warning() << "libheif write error: " << error.get_message().c_str();
     }
 
@@ -359,8 +322,7 @@ QVariant IOHandler::option(ImageOption opt) const
 {
     QTHEIFIMAGEPLUGIN_LOG_TRACE("opt: " << opt);
 
-    switch (opt)
-    {
+    switch (opt) {
     case Size:
         return _readState ? _readState->size : QVariant{};
 
@@ -373,14 +335,12 @@ void IOHandler::setOption(ImageOption opt, const QVariant& value)
 {
     QTHEIFIMAGEPLUGIN_LOG_TRACE("opt: " << opt << ", value: " << value);
 
-    switch (opt)
-    {
+    switch (opt) {
     case Quality: {
         bool ok = false;
         int q = value.toInt(&ok);
 
-        if (ok && q >= 0 && q <= 100)
-        {
+        if (ok && q >= 0 && q <= 100) {
             _quality = q;
         }
 
