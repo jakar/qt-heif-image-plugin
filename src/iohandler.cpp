@@ -62,7 +62,7 @@ IOHandler::Format IOHandler::canReadFrom(QIODevice& device)
     QByteArray header = device.peek(kHeaderSize);
 
     if (header.size() != kHeaderSize) {
-        return Format::none;
+        return Format::None;
     }
 
     // skip first four bytes, which contain box size
@@ -71,20 +71,20 @@ IOHandler::Format IOHandler::canReadFrom(QIODevice& device)
 
     if (w1 != "ftyp") {
         // not an ftyp box
-        return Format::none;
+        return Format::None;
     }
 
     // brand follows box name, determines format
     if (w2 == "mif1") {
-        return Format::heif;
+        return Format::Heif;
     } else if (w2 == "msf1") {
-        return Format::heifSequence;
+        return Format::HeifSequence;
     } else if (w2 == "heic" || w2 == "heix") {
-        return Format::heic;
+        return Format::Heic;
     } else if (w2 == "hevc" || w2 == "hevx") {
-        return Format::heicSequence;
+        return Format::HeicSequence;
     } else {
-        return Format::none;
+        return Format::None;
     }
 }
 
@@ -99,19 +99,19 @@ bool IOHandler::canRead() const
     // Other image plugins set the format here. Not sure if it is really
     // necessary or what it accomplishes.
     switch (format) {
-    case Format::heif:
+    case Format::Heif:
         setFormat("heif");
         return true;
 
-    case Format::heifSequence:
+    case Format::HeifSequence:
         setFormat("heifs");
         return true;
 
-    case Format::heic:
+    case Format::Heic:
         setFormat("heic");
         return true;
 
-    case Format::heicSequence:
+    case Format::HeicSequence:
         setFormat("heics");
         return true;
 

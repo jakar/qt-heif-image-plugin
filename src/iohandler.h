@@ -16,11 +16,11 @@ class IOHandler : public QImageIOHandler
 public:
     enum class Format
     {
-        none,
-        heif,
-        heifSequence,
-        heic,
-        heicSequence,
+        None,
+        Heif,
+        HeifSequence,
+        Heic,
+        HeicSequence,
     };
 
     explicit IOHandler();

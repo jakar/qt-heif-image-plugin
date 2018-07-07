@@ -34,7 +34,7 @@ Plugin::Capabilities Plugin::capabilities(QIODevice* device,
     using F = IOHandler::Format;
     Capabilities caps{};
 
-    if (device->isReadable() && IOHandler::canReadFrom(*device) != F::none) {
+    if (device->isReadable() && IOHandler::canReadFrom(*device) != F::None) {
         caps |= CanRead;
     }
 
