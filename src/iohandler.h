@@ -31,9 +31,9 @@ public:
 
     bool write(const QImage& image) override;
 
-    QVariant option(ImageOption option) const override;
-    void setOption(ImageOption option, const QVariant& value) override;
-    bool supportsOption(ImageOption option) const override;
+    QVariant option(ImageOption opt) const override;
+    void setOption(ImageOption opt, const QVariant& value) override;
+    bool supportsOption(ImageOption opt) const override;
 
     static Format canReadFrom(QIODevice& device);
 
