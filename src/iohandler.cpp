@@ -14,7 +14,6 @@
 #include <QVariant>
 
 #include "log.h"
-#include "util.h"
 
 namespace {
 
@@ -137,7 +136,7 @@ void IOHandler::loadContext()
         return;
     }
 
-    auto rs = util::make_unique_aggregate<ReadState>(device()->readAll());
+    std::unique_ptr<ReadState> rs(new ReadState{device()->readAll()});
     const auto& fileData = rs->fileData;
 
     if (fileData.isEmpty()) {
