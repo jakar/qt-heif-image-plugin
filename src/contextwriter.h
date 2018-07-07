@@ -9,15 +9,15 @@ namespace qtheifimageplugin {
 
 class ContextWriter : public heif::Context::Writer
 {
- public:
-  explicit ContextWriter(QIODevice& device);
+public:
+    explicit ContextWriter(QIODevice& device);
 
-  virtual ~ContextWriter() = default;
+    virtual ~ContextWriter() = default;
 
-  heif_error write(const void* data, size_t size) override;
+    heif_error write(const void* data, size_t size) override;
 
- private:
-  QIODevice& _device;
+private:
+    QIODevice& _device;
 };
 
 }  // namespace qtheifimageplugin

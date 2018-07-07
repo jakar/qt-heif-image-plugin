@@ -13,63 +13,63 @@ namespace qtheifimageplugin {
 
 class IOHandler : public QImageIOHandler
 {
- public:
-  enum class Format
-  {
-    none,
-    heif,
-    heifSequence,
-    heic,
-    heicSequence,
-  };
+public:
+    enum class Format
+    {
+        none,
+        heif,
+        heifSequence,
+        heic,
+        heicSequence,
+    };
 
-  explicit IOHandler();
-  virtual ~IOHandler();
+    explicit IOHandler();
+    virtual ~IOHandler();
 
-  bool canRead() const override;
-  bool read(QImage* image) override;
+    bool canRead() const override;
+    bool read(QImage* image) override;
 
-  bool write(const QImage& image) override;
+    bool write(const QImage& image) override;
 
-  QVariant option(ImageOption option) const override;
-  void setOption(ImageOption option, const QVariant& value) override;
-  bool supportsOption(ImageOption option) const override;
+    QVariant option(ImageOption option) const override;
+    void setOption(ImageOption option, const QVariant& value) override;
+    bool supportsOption(ImageOption option) const override;
 
-  static Format canReadFrom(QIODevice& device);
+    static Format canReadFrom(QIODevice& device);
 
- private:
-  struct ReadState
-  {
-    const QByteArray fileData;
-    heif::Context context{};
-    heif::ImageHandle handle{};
-    heif::Image image{};
-    QSize size{};
-  };
+private:
+    struct ReadState
+    {
+        const QByteArray fileData;
+        heif::Context context{};
+        heif::ImageHandle handle{};
+        heif::Image image{};
+        QSize size{};
+    };
 
-  IOHandler(const IOHandler& handler) = delete;
-  IOHandler& operator=(const IOHandler& handler) = delete;
+    IOHandler(const IOHandler& handler) = delete;
+    IOHandler& operator=(const IOHandler& handler) = delete;
 
-  /**
-   * Updates device and associated state upon device change.
-   */
-  void updateDevice();
+    /**
+     * Updates device and associated state upon device change.
+     */
+    void updateDevice();
 
-  /**
-   * Reads image data from device.
-   * Throws heif::Error.
-   */
-  void loadContext();
+    /**
+     * Reads image data from device.
+     * Throws heif::Error.
+     */
+    void loadContext();
 
-  //
-  // Private data
-  //
+    //
+    // Private data
+    //
 
-  QIODevice* _device = nullptr;
+    QIODevice* _device = nullptr;
 
-  std::unique_ptr<ReadState> _readState;
+    std::unique_ptr<ReadState> _readState;
 
-  int _quality;
+    int _quality;
 };
 
 }  // namespace qtheifimageplugin

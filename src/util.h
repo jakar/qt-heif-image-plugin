@@ -13,14 +13,14 @@ using std::make_unique;
 template<class T, class... As>
 std::unique_ptr<T> make_unique(As&&... args)
 {
-  return std::unique_ptr<T>(new T(std::forward<As>(args)...));
+    return std::unique_ptr<T>(new T(std::forward<As>(args)...));
 }
 #endif
 
 template<class T, class... As>
 std::unique_ptr<T> make_unique_aggregate(As&&... args)
 {
-  return std::unique_ptr<T>(new T{std::forward<As>(args)...});
+    return std::unique_ptr<T>(new T{std::forward<As>(args)...});
 }
 
 }  // namespace util
