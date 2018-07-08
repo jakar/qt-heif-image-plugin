@@ -3,8 +3,6 @@
 
 #include <QDebug>
 
-#include <utility>
-
 #if defined(__GNUC__)
 #   define QTHEIFIMAGEPLUGIN_LOG_CURRENT_FUNC __PRETTY_FUNCTION__
 #else
