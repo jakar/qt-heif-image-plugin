@@ -1,11 +1,7 @@
 #include "iohandler.h"
 
 #include "contextwriter.h"
-
-#include <algorithm>
-#include <cstdint>
-#include <iostream>
-#include <memory>
+#include "log.h"
 
 #include <libheif/heif_cxx.h>
 
@@ -13,7 +9,10 @@
 #include <QSize>
 #include <QVariant>
 
-#include "log.h"
+#include <algorithm>
+#include <cstdint>
+#include <iostream>
+#include <memory>
 
 namespace {
 
