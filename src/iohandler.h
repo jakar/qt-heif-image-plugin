@@ -47,13 +47,9 @@ public:
     static Format canReadFrom(QIODevice& device);
 
 private:
-    /**
-     * Holds data needed for both image decoding (in read()) and metadata
-     * retrieval (in option()).
-     */
     struct ReadState
     {
-        const QByteArray fileData;  // must exist for lifetime of context
+        const QByteArray fileData;
         heif::Context context{};
         std::vector<heif_item_id> idList{};
         int currentIndex{};
