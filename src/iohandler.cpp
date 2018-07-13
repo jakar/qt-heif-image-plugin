@@ -156,11 +156,6 @@ void IOHandler::loadContext()
 
     // set up new context
     readContextFromMemory(rs->context, rs->fileData.data(), rs->fileData.size());
-    rs->handle = rs->context.get_primary_image_handle();
-
-    rs->image = rs->handle.decode_image(heif_colorspace_RGB,
-                                        heif_chroma_interleaved_RGBA);
-
     _readState = std::move(rs);
 }
 
@@ -181,9 +176,11 @@ bool IOHandler::read(QImage* destImage)
             return false;
         }
 
-        auto& srcImage = _readState->image;
-        auto channel = heif_channel_interleaved;
+        auto handle = _readState->context.get_primary_image_handle();
+        auto srcImage = handle.decode_image(heif_colorspace_RGB,
+                                            heif_chroma_interleaved_RGBA);
 
+        auto channel = heif_channel_interleaved;
         const auto& imgSize = QSize(srcImage.get_width(channel),
                                     srcImage.get_height(channel));
 

@@ -49,8 +49,6 @@ private:
     {
         const QByteArray fileData;  // must exist for lifetime of context
         heif::Context context{};
-        heif::ImageHandle handle{};
-        heif::Image image{};
     };
 
     /**
