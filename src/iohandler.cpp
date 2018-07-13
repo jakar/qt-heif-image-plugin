@@ -143,10 +143,11 @@ void IOHandler::loadContext()
     }
 
     if (_readState) {
-        // context already loded
+        // context already loaded
         return;
     }
 
+    // read file
     std::unique_ptr<ReadState> rs(new ReadState{device()->readAll()});
 
     if (rs->fileData.isEmpty()) {
@@ -156,7 +157,30 @@ void IOHandler::loadContext()
 
     // set up new context
     readContextFromMemory(rs->context, rs->fileData.data(), rs->fileData.size());
+    rs->idList = rs->context.get_list_of_top_level_image_IDs();
+    int numImages = rs->context.get_number_of_top_level_images();
+
+    if (numImages < 0 || static_cast<size_t>(numImages) != rs->idList.size()) {
+        log::warning()
+            << "id list size (" << rs->idList.size()
+            << ") does not match number of images (" << numImages << ")";
+    }
+
+    // find primary image in sequence; no ordering guaranteed for id values
+    auto id = rs->context.get_primary_image_ID();
+    auto iter = std::find(rs->idList.begin(), rs->idList.end(), id);
+
+    if (iter == rs->idList.end()) {
+        log::debug() << "primary image not found in id list";
+        return;
+    }
+
+    rs->currentIndex = static_cast<int>(iter - rs->idList.begin());
     _readState = std::move(rs);
+
+    QTHEIFIMAGEPLUGIN_LOG_TRACE("num images: " << _readState->idList.size()
+                                << ", primary id: " << id
+                                << ", index: " << _readState->currentIndex);
 }
 
 bool IOHandler::read(QImage* destImage)
@@ -172,11 +196,21 @@ bool IOHandler::read(QImage* destImage)
         loadContext();
 
         if (!_readState) {
-            log::debug() << "failed to decode image";
+            log::debug() << "failed to create context";
             return false;
         }
 
-        auto handle = _readState->context.get_primary_image_handle();
+        auto id = _readState->idList.at(_readState->currentIndex);
+
+        QTHEIFIMAGEPLUGIN_LOG_TRACE("id: " << id
+                                    << ", index: " << _readState->currentIndex);
+
+        if (!_readState->context.is_top_level_image_ID(id)) {
+            log::debug() << "invalid image id: " << id;
+            return false;
+        }
+
+        auto handle = _readState->context.get_image_handle(id);
         auto srcImage = handle.decode_image(heif_colorspace_RGB,
                                             heif_chroma_interleaved_RGBA);
 
@@ -223,6 +257,57 @@ bool IOHandler::read(QImage* destImage)
     }
 
     return false;
+}
+
+//
+// Jumping
+//
+
+int IOHandler::currentImageNumber() const
+{
+    if (!_readState) {
+        return -1;
+    }
+
+    return _readState->currentIndex;
+}
+
+int IOHandler::imageCount() const
+{
+    if (!_readState) {
+        return 0;
+    }
+
+    return _readState->context.get_number_of_top_level_images();
+}
+
+bool IOHandler::jumpToImage(int index)
+{
+    QTHEIFIMAGEPLUGIN_LOG_TRACE("index: " << index);
+
+    if (!_readState) {
+        return false;
+    }
+
+    if (index < 0 || static_cast<size_t>(index) >= _readState->idList.size()) {
+        return false;
+    }
+
+    if (!_readState->context.is_top_level_image_ID(_readState->idList[index])) {
+        return false;
+    }
+
+    _readState->currentIndex = index;
+    return true;
+}
+
+bool IOHandler::jumpToNextImage()
+{
+    if (!_readState) {
+        return false;
+    }
+
+    return jumpToImage(_readState->currentIndex + 1);
 }
 
 //

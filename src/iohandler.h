@@ -8,6 +8,7 @@
 #include <QSize>
 
 #include <memory>
+#include <vector>
 
 namespace qtheifimageplugin {
 
@@ -34,6 +35,11 @@ public:
 
     bool write(const QImage& image) override;
 
+    int currentImageNumber() const override;
+    int imageCount() const override;
+    bool jumpToImage(int index) override;
+    bool jumpToNextImage() override;
+
     QVariant option(ImageOption opt) const override;
     void setOption(ImageOption opt, const QVariant& value) override;
     bool supportsOption(ImageOption opt) const override;
@@ -49,6 +55,8 @@ private:
     {
         const QByteArray fileData;  // must exist for lifetime of context
         heif::Context context{};
+        std::vector<heif_item_id> idList{};
+        int currentIndex{};
     };
 
     /**
