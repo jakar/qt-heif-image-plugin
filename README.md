@@ -5,8 +5,9 @@ Qt applications to open and save HEIF images, such as those from Apple devices.
 [HEIF]: https://en.wikipedia.org/wiki/High_Efficiency_Image_File_Format
 [libheif]: https://github.com/strukturag/libheif
 
-Currently, support is limited to basic reading and writing of the primary
-image. Metadata is not handled at all.
+Currently, support is limited to the following:
+* Basic reading and writing of the primary image
+* Reading of files with multiple top-level images
 
 ## Dependencies
 - Qt 5 (Core and GUI modules)
