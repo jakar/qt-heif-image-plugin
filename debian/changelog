@@ -1,3 +1,33 @@
+qt-heif-image-plugin (0.2.1-1) unstable; urgency=medium
+
+  * cmake: Fix DESTDIR usage; make compatible with older cmake
+  * Ignore build and temporary dirs
+  * Add Dockerfile to build package
+  * README: Clean up; add info
+  * README: Add blurb about lack of metadata
+  * README: Clarify lack of support for image sequences
+  * Determine format more robustly
+  * Fix checking ftyp brand for "heix"
+  * README: Link to dumageview
+  * cmake: Fix sanitizer flags for linker
+  * Fix format test in `Plugin::capabilities`
+  * Change local Vim settings for Qt style
+  * Indent 4 spaces
+  * Change brace-newline style
+  * Don't shadow function name with parameter
+  * Use uppercase names for enum values
+  * iohandler: Rename source/destination variables
+  * iohandler: Document ReadState somewhat
+  * iohandler: Move deleted copy ctor/assignment to public section
+  * plugin: Use default ctor/dtor
+  * Remove util.h
+  * Reduce libheif requirement to version 1.2
+  * README: Add nomacs as an application
+  * Fix include order
+  * Remove unnecessary includes
+
+ -- Jake Harr <jakeharr@gmail.com>  Fri, 13 Jul 2018 01:44:32 -0400
+
 qt-heif-image-plugin (0.2-1) unstable; urgency=medium
 
   [ Xu Shaohua ]
