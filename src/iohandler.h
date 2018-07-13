@@ -51,7 +51,6 @@ private:
         heif::Context context{};
         heif::ImageHandle handle{};
         heif::Image image{};
-        QSize size{};
     };
 
     /**

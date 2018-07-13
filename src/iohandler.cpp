@@ -161,15 +161,6 @@ void IOHandler::loadContext()
     rs->image = rs->handle.decode_image(heif_colorspace_RGB,
                                         heif_chroma_interleaved_RGBA);
 
-    auto chan = heif_channel_interleaved;
-    rs->size = QSize(rs->image.get_width(chan), rs->image.get_height(chan));
-
-    if (!rs->size.isValid()) {
-        log::debug() << "invalid image size: "
-            << rs->size.width() << "x" << rs->size.height();
-        return;
-    }
-
     _readState = std::move(rs);
 }
 
@@ -191,8 +182,16 @@ bool IOHandler::read(QImage* destImage)
         }
 
         auto& srcImage = _readState->image;
-        const auto& imgSize = _readState->size;
         auto channel = heif_channel_interleaved;
+
+        const auto& imgSize = QSize(srcImage.get_width(channel),
+                                    srcImage.get_height(channel));
+
+        if (!imgSize.isValid()) {
+            log::debug() << "invalid image size: "
+                << imgSize.width() << "x" << imgSize.height();
+            return false;
+        }
 
         int stride = 0;
         const uint8_t* data = srcImage.get_plane(channel, &stride);
@@ -331,13 +330,8 @@ QVariant IOHandler::option(ImageOption opt) const
 {
     QTHEIFIMAGEPLUGIN_LOG_TRACE("opt: " << opt);
 
-    switch (opt) {
-    case Size:
-        return _readState ? _readState->size : QVariant{};
-
-    default:
-        return {};
-    }
+    Q_UNUSED(opt);
+    return {};
 }
 
 void IOHandler::setOption(ImageOption opt, const QVariant& value)
@@ -365,7 +359,7 @@ bool IOHandler::supportsOption(ImageOption opt) const
 {
     QTHEIFIMAGEPLUGIN_LOG_TRACE("opt: " << opt);
 
-    return opt == Quality || opt == Size;
+    return opt == Quality;
 }
 
 }  // namespace qtheifimageplugin
