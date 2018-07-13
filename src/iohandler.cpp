@@ -72,6 +72,8 @@ IOHandler::Format IOHandler::canReadFrom(QIODevice& device)
     }
 
     // brand follows box name, determines format
+    QTHEIFIMAGEPLUGIN_LOG_TRACE("ftyp: " << w2);
+
     if (w2 == "mif1") {
         return Format::Heif;
     } else if (w2 == "msf1") {
