@@ -340,11 +340,6 @@ bool IOHandler::write(const QImage& preConvSrcImage)
     }
 
     try {
-        heif::Context context{};
-
-        heif::Encoder encoder(heif_compression_HEVC);
-        encoder.set_lossy_quality(_quality);
-
         int width = srcImage.width();
         int height = srcImage.height();
 
@@ -392,6 +387,11 @@ bool IOHandler::write(const QImage& preConvSrcImage)
             std::copy(srcBegin, srcEnd, destData + y * destStride);
         }
 
+        // encode and write
+        heif::Encoder encoder(heif_compression_HEVC);
+        encoder.set_lossy_quality(_quality);
+
+        heif::Context context{};
         context.encode_image(destImage, encoder);
 
         ContextWriter writer(*device());
