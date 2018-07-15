@@ -61,7 +61,7 @@ private:
     void updateDevice();
 
     /**
-     * Reads image data from device.
+     * Reads data from device. Creates read state.
      * Throws heif::Error.
      */
     void loadContext();
