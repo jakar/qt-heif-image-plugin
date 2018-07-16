@@ -1,5 +1,5 @@
-#ifndef QTHEIFIMAGEPLUGIN_IO_HANDLER_H_
-#define QTHEIFIMAGEPLUGIN_IO_HANDLER_H_
+#ifndef QTHEIFIMAGEPLUGIN_IOHANDLER_H_
+#define QTHEIFIMAGEPLUGIN_IOHANDLER_H_
 
 #include <libheif/heif_cxx.h>
 
@@ -79,4 +79,4 @@ private:
 
 }  // namespace qtheifimageplugin
 
-#endif  // QTHEIFIMAGEPLUGIN_IO_HANDLER_H_
+#endif  // QTHEIFIMAGEPLUGIN_IOHANDLER_H_
