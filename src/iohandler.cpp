@@ -166,6 +166,7 @@ void IOHandler::loadContext()
         log::warning()
             << "id list size (" << rs->idList.size()
             << ") does not match number of images (" << numImages << ")";
+        return;
     }
 
     // find primary image in sequence; no ordering guaranteed for id values
