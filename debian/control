@@ -4,6 +4,7 @@ Maintainer: Xu Shaohua <xushaohua2016@outlook.com>
 Build-Depends: debhelper (>= 9),
     cmake,
     libheif-dev (>= 1.2),
+    pkg-config,
     qtbase5-dev,
 Standards-Version: 3.9.8
 Section: libs
