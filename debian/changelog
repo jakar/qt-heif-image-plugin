@@ -1,3 +1,9 @@
+qt-heif-image-plugin (0.3.0-2) unstable; urgency=medium
+
+  * debian: Reword description
+
+ -- Jake Harr <jakeharr@gmail.com>  Wed, 18 Jul 2018 04:07:01 -0400
+
 qt-heif-image-plugin (0.3.0-1) unstable; urgency=medium
 
   * Use ID list to jump between images (#6)
