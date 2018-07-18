@@ -1,3 +1,20 @@
+qt-heif-image-plugin (0.3.0-1) unstable; urgency=medium
+
+  * Use ID list to jump between images (#6)
+  * Log file type brand (#7)
+  * Initialize closer to usage
+  * Improve `loadContext()` doc
+  * cmake: Move to src subdir
+  * iohandler: Be consistent with header guards
+  * contextwriter: Remove unnecessary constants
+  * iohandler: Fail if libheif is inconsistent with top-level IDs
+  * debian: Add pkg-config build dependency (#2)
+  * debian: Change maintainer (#2)
+  * debian: Build using git-buildpackage (#2)
+  * Add changelog
+
+ -- Jake Harr <jakeharr@gmail.com>  Wed, 18 Jul 2018 03:38:03 -0400
+
 qt-heif-image-plugin (0.2.1-1) unstable; urgency=medium
 
   * cmake: Fix DESTDIR usage; make compatible with older cmake
