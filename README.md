@@ -1,6 +1,7 @@
-# qt-heif-image-plugin: HEIF Image Plugin for Qt
-This is a Qt plugin for [HEIF] images, wrapping [libheif]. It enables existing
-Qt applications to open and save HEIF images, such as those from Apple devices.
+# qt-heif-image-plugin: Qt plugin for HEIF images
+This is a Qt image plugin for [HEIF] images, wrapping [libheif]. It enables
+existing Qt applications to open and save `.heic` files, such as those from
+Apple devices.
 
 [HEIF]: https://en.wikipedia.org/wiki/High_Efficiency_Image_File_Format
 [libheif]: https://github.com/strukturag/libheif
@@ -9,16 +10,40 @@ Currently, support is limited to the following:
 * Basic reading and writing of the primary image
 * Reading of files with multiple top-level images
 
-## Dependencies
-- Qt 5 (Core and GUI modules)
-- libheif ([source](https://github.com/strukturag/libheif),
-  [PPA](https://launchpad.net/~strukturag/+archive/ubuntu/libheif))
-- libde265 (transitive dependency of libheif;
-  [source](https://github.com/strukturag/libde265),
-  [PPA](https://launchpad.net/~strukturag/+archive/ubuntu/libde265))
+## Installation
+### Ubuntu
+A [PPA exists](https://launchpad.net/~jakar/+archive/ubuntu/qt-heif) for Ubuntu
+users.  For 18.04 (bionic) and earlier, the
+[`strukturag/libheif`](https://launchpad.net/~strukturag/+archive/ubuntu/libheif)
+repository must also be enabled for dependencies.
+```
+$ sudo add-apt-repository ppa:strukturag/libheif
+$ sudo add-apt-repository ppa:jakar/qt-heif
+$ sudo apt update
+$ sudo apt install qt-heif-image-plugin
+```
 
-## Compilation
-Build with CMake:
+### Other systems
+Users of other systems should build from source.
+
+## Building from source
+### Dependencies
+#### Runtime dependencies
+- Qt 5 (Core and GUI modules)
+- libheif (&ge; version 1.2)
+
+#### Build-only dependencies
+- cmake
+- pkg-config
+
+### Build instructions
+Get the source code:
+```
+$ git clone https://github.com/jakar/qt-heif-image-plugin.git
+$ cd qt-heif-image-plugin
+```
+
+Configure with cmake and compile:
 ```
 $ mkdir build
 $ cd build
@@ -26,7 +51,7 @@ $ cmake ..
 $ make
 ```
 
-Then, to install:
+Finally, install:
 ```
 $ sudo make install
 ```
