@@ -15,5 +15,5 @@ Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Conflicts: qt-heifimageplugin
 Replaces: qt-heifimageplugin
-Description: heif plugin for Qt
- Wrapper of libheif for Qt image
+Description: Qt Plugin for HEIF Images
+ Wraps libheif to enable Qt applications to use HEIF images.
