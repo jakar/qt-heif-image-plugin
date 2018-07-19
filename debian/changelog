@@ -1,3 +1,9 @@
+qt-heif-image-plugin (0.3.0-3) unstable; urgency=medium
+
+  * debian/buildtool: Change versioning scheme (#2)
+
+ -- Jake Harr <jakeharr@gmail.com>  Thu, 19 Jul 2018 15:24:15 -0400
+
 qt-heif-image-plugin (0.3.0-2) unstable; urgency=medium
 
   * debian: Reword description
