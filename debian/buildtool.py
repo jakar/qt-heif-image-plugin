@@ -12,6 +12,16 @@ from pathlib import Path
 
 IMAGE_PREFIX = "pluginbuild"
 
+DISTRO_RELEASES = {
+    # debian releases
+    "stretch": "9",
+    "buster": "10",
+    # ubuntu releases
+    "xenial": "16.04",
+    "bionic": "18.04",
+    "cosmic": "18.10",
+    }
+
 SCRIPT_DIR = Path(__file__).resolve().parent
 
 def runproc(*args, **kw):
@@ -54,16 +64,23 @@ def build_image(dist_id, dist_codename, tz):
             "."
             )
 
-def add_changelog(version, dist_codename, dist_rev):
+def add_changelog(version, dist_id, dist_codename, dist_rev):
+    dist_release = DISTRO_RELEASES[dist_codename]
+
     with chdir(SCRIPT_DIR.parent):
-        runproc("git", "commit", "--allow-empty", "-m", "Package for PPA")
+        runproc(
+            "git", "commit", "--allow-empty",
+            "-m", "Package for distribution",
+            )
         runproc(
             "gbp", "dch",
-            "-N", f"{version}~{dist_codename}{dist_rev}",
-            f"--distribution={dist_codename}", "-R",
+            "-N", f"{version}~{dist_id}{dist_release}.{dist_rev}",
+            f"--distribution={dist_codename}",
+            "--release",
             "--spawn-editor=never",
+            "--dch-opt=--force-bad-version",
+            "--commit",
             )
-        runproc("git", "commit", "-a", "-m", "Add PPA changelog")
 
 def main():
     parser = argparse.ArgumentParser(
@@ -87,11 +104,11 @@ def main():
     parser.add_argument(
         "-P", "--ppa",
         metavar="VERSION",
-        help="add changelog for ppa (eg, 0.1-1ppa1)",
+        help="add changelog for ppa (eg, 0.1-1~ppa0)",
         )
     parser.add_argument(
         "-r", "--dist-rev",
-        default="1",
+        default="0",
         help="set distribution specific version part",
         )
     parser.add_argument(
@@ -115,6 +132,7 @@ def main():
 
     if args.ppa:
         add_changelog(version=args.ppa,
+                      dist_id=args.dist_id,
                       dist_codename=args.dist_codename,
                       dist_rev=args.dist_rev)
 
