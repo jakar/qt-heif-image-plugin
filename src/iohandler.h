@@ -72,7 +72,7 @@ private:
 
     QIODevice* _device = nullptr;
 
-    std::unique_ptr<ReadState> _readState;
+    std::unique_ptr<ReadState> _readState;  // non-null iff context is loaded
 
     int _quality;
 };

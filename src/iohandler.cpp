@@ -35,12 +35,15 @@ IOHandler::~IOHandler()
 
 void IOHandler::updateDevice()
 {
+    // !_device ==> !_readState
+    Q_ASSERT(_device || !_readState);
+
     if (!device()) {
         log::warning() << "device is null";
-        Q_ASSERT(_readState == nullptr);
     }
 
     if (device() != _device) {
+        // new device; re-read data
         _device = device();
         _readState.reset();
     }
