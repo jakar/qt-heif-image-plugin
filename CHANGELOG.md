@@ -1,5 +1,8 @@
 # Changelog
 
+## UNRELEASED
+- Removed an unnecessary copy when reading an image.
+
 ## 0.3.0 - 2018-07-18
 - Added ability to read multi-image files.
 - Added helpers to assist with `deb` packaging.
