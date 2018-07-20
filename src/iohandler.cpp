@@ -143,6 +143,17 @@ heif::Context readContextFromMemory(const void* mem, size_t size)
 
 }  // namespace
 
+IOHandler::ReadState::ReadState(QByteArray&& data,
+                                heif::Context&& ctx,
+                                std::vector<heif_item_id>&& ids,
+                                int index) :
+    fileData(std::move(data)),
+    context(std::move(ctx)),
+    idList(std::move(ids)),
+    currentIndex(index)
+{
+}
+
 void IOHandler::loadContext()
 {
     updateDevice();
