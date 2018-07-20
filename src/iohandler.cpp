@@ -128,13 +128,17 @@ bool IOHandler::canRead() const
 
 namespace {
 
-void readContextFromMemory(heif::Context& context, const void* mem, size_t size)
+heif::Context readContextFromMemory(const void* mem, size_t size)
 {
+    heif::Context context{};
+
 #if LIBHEIF_NUMERIC_VERSION >= 0x01030000
     context.read_from_memory_without_copy(mem, size);
 #else
     context.read_from_memory(mem, size);
 #endif
+
+    return context;
 }
 
 }  // namespace
@@ -153,40 +157,44 @@ void IOHandler::loadContext()
     }
 
     // read file
-    std::unique_ptr<ReadState> rs(new ReadState{device()->readAll()});
+    auto fileData = device()->readAll();
 
-    if (rs->fileData.isEmpty()) {
+    if (fileData.isEmpty()) {
         log::debug() << "failed to read file data";
         return;
     }
 
     // set up new context
-    readContextFromMemory(rs->context, rs->fileData.data(), rs->fileData.size());
-    rs->idList = rs->context.get_list_of_top_level_image_IDs();
-    int numImages = rs->context.get_number_of_top_level_images();
+    auto context = readContextFromMemory(fileData.constData(), fileData.size());
+    auto idList = context.get_list_of_top_level_image_IDs();
+    int numImages = context.get_number_of_top_level_images();
 
-    if (numImages < 0 || static_cast<size_t>(numImages) != rs->idList.size()) {
+    if (numImages < 0 || static_cast<size_t>(numImages) != idList.size()) {
         log::warning()
-            << "id list size (" << rs->idList.size()
+            << "id list size (" << idList.size()
             << ") does not match number of images (" << numImages << ")";
         return;
     }
 
     // find primary image in sequence; no ordering guaranteed for id values
-    auto id = rs->context.get_primary_image_ID();
-    auto iter = std::find(rs->idList.begin(), rs->idList.end(), id);
+    auto id = context.get_primary_image_ID();
+    auto iter = std::find(idList.begin(), idList.end(), id);
 
-    if (iter == rs->idList.end()) {
+    if (iter == idList.end()) {
         log::debug() << "primary image not found in id list";
         return;
     }
 
-    rs->currentIndex = static_cast<int>(iter - rs->idList.begin());
-    _readState = std::move(rs);
+    int currentIndex = static_cast<int>(iter - idList.begin());
 
-    QTHEIFIMAGEPLUGIN_LOG_TRACE("num images: " << _readState->idList.size()
+    QTHEIFIMAGEPLUGIN_LOG_TRACE("num images: " << idList.size()
                                 << ", primary id: " << id
-                                << ", index: " << _readState->currentIndex);
+                                << ", index: " << currentIndex);
+
+    _readState.reset(new ReadState{std::move(fileData),
+                                   std::move(context),
+                                   std::move(idList),
+                                   currentIndex});
 }
 
 bool IOHandler::read(QImage* destImage)

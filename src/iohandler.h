@@ -50,8 +50,8 @@ private:
     struct ReadState
     {
         const QByteArray fileData;
-        heif::Context context{};
-        std::vector<heif_item_id> idList{};
+        const heif::Context context;
+        const std::vector<heif_item_id> idList;
         int currentIndex{};
     };
 
