@@ -1,7 +1,8 @@
 # Changelog
 
-## UNRELEASED
+## 0.3.1 - 2018-07-22
 - Removed an unnecessary copy when reading an image.
+- Reduced language requirement to C++11 (from C++14).
 
 ## 0.3.0 - 2018-07-18
 - Added ability to read multi-image files.
