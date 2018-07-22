@@ -13,15 +13,19 @@ Currently, support is limited to the following:
 ## Installation
 ### Ubuntu
 A [PPA exists](https://launchpad.net/~jakar/+archive/ubuntu/qt-heif) for Ubuntu
-users.  For 18.04 (bionic) and earlier, the
-[`strukturag/libheif`](https://launchpad.net/~strukturag/+archive/ubuntu/libheif)
-repository must also be enabled for dependencies.
+users.  For *bionic* (18.04) and earlier, the
+[libheif repository](https://launchpad.net/~strukturag/+archive/ubuntu/libheif)
+must also be enabled for dependencies.
 ```
 $ sudo add-apt-repository ppa:strukturag/libheif
 $ sudo add-apt-repository ppa:jakar/qt-heif
 $ sudo apt update
 $ sudo apt install qt-heif-image-plugin
 ```
+
+### Debian
+Packages built against *buster* and *unstable* are provided on the
+[Releases](https://github.com/jakar/qt-heif-image-plugin/releases) page.
 
 ### Other systems
 Users of other systems should build from source.
