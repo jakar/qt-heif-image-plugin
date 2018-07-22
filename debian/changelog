@@ -1,3 +1,13 @@
+qt-heif-image-plugin (0.3.1-1) unstable; urgency=medium
+
+  * Avoid copying decoded data during read (#9)
+  * Simplify decoded image movement (#9)
+  * Document invariants
+  * Refactor read state initialization (#10)
+  * Add struct ctor for C++11 (#10)
+
+ -- Jake Harr <jakeharr@gmail.com>  Sun, 22 Jul 2018 17:43:54 -0400
+
 qt-heif-image-plugin (0.3.0-3) unstable; urgency=medium
 
   * debian/buildtool: Change versioning scheme (#2)
