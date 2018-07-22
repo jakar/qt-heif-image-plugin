@@ -236,15 +236,12 @@ bool IOHandler::read(QImage* destImage)
         }
 
         auto handle = _readState->context.get_image_handle(id);
-        auto tmpImage = handle.decode_image(heif_colorspace_RGB,
+        auto srcImage = handle.decode_image(heif_colorspace_RGB,
                                             heif_chroma_interleaved_RGBA);
 
-        // avoid data copy by copying image object, which uses shared_ptr
-        std::unique_ptr<heif::Image> srcImage(new heif::Image(std::move(tmpImage)));
-
         auto channel = heif_channel_interleaved;
-        const auto& imgSize = QSize(srcImage->get_width(channel),
-                                    srcImage->get_height(channel));
+        const auto& imgSize = QSize(srcImage.get_width(channel),
+                                    srcImage.get_height(channel));
 
         if (!imgSize.isValid()) {
             log::debug() << "invalid image size: "
@@ -253,7 +250,7 @@ bool IOHandler::read(QImage* destImage)
         }
 
         int stride = 0;
-        const uint8_t* data = srcImage->get_plane(channel, &stride);
+        const uint8_t* data = srcImage.get_plane(channel, &stride);
 
         if (!data) {
             log::warning() << "pixel data not found";
@@ -265,8 +262,8 @@ bool IOHandler::read(QImage* destImage)
             return false;
         }
 
-        // move ownership of data to dest image
-        heif::Image* dataImage = srcImage.release();
+        // image object copy/move refers to same data
+        auto* dataImage = new heif::Image(std::move(srcImage));
 
         *destImage = QImage(
             data, imgSize.width(), imgSize.height(),
