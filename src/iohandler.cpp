@@ -240,8 +240,8 @@ bool IOHandler::read(QImage* destImage)
                                             heif_chroma_interleaved_RGBA);
 
         auto channel = heif_channel_interleaved;
-        const auto& imgSize = QSize(srcImage.get_width(channel),
-                                    srcImage.get_height(channel));
+        QSize imgSize(srcImage.get_width(channel),
+                      srcImage.get_height(channel));
 
         if (!imgSize.isValid()) {
             log::debug() << "invalid image size: "
