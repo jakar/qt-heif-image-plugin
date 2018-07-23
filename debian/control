@@ -2,7 +2,7 @@ Source: qt-heif-image-plugin
 Priority: optional
 Maintainer: Jake Harr <jakeharr@gmail.com>
 Build-Depends: debhelper (>= 9),
-    cmake,
+    cmake (>= 3.5) | cmake3 (>= 3.5),
     libheif-dev (>= 1.2),
     pkg-config,
     qtbase5-dev,
