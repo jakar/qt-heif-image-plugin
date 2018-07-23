@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.2 - 2018-07-23
+- Fixed error when building against older Qt.
+- Minor code cleanup.
+
 ## 0.3.1 - 2018-07-22
 - Removed an unnecessary copy when reading an image.
 - Reduced language requirement to C++11 (from C++14).
