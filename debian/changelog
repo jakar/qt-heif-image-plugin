@@ -1,3 +1,13 @@
+qt-heif-image-plugin (0.3.2-1) unstable; urgency=medium
+
+  * Fix reference
+  * Don't use `qInfo()`
+  * debian: Require cmake >= 3.5
+  * debian: Build with more OS versions
+  * Fix shadow warning
+
+ -- Jake Harr <jakeharr@gmail.com>  Mon, 23 Jul 2018 17:26:30 -0400
+
 qt-heif-image-plugin (0.3.1-1) unstable; urgency=medium
 
   * Avoid copying decoded data during read (#9)
