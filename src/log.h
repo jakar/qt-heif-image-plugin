@@ -32,11 +32,6 @@ inline QDebug debug()
     return detail::print(qDebug());
 }
 
-inline QDebug info()
-{
-    return detail::print(qInfo());
-}
-
 inline QDebug warning()
 {
     return detail::print(qWarning());
