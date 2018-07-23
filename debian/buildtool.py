@@ -17,6 +17,7 @@ DISTRO_RELEASES = {
     "stretch": "9",
     "buster": "10",
     # ubuntu releases
+    "trusty": "14.04",
     "xenial": "16.04",
     "bionic": "18.04",
     "cosmic": "18.10",
@@ -54,18 +55,31 @@ def run_container(dist_id, dist_codename, key_dir, sign_only):
         )
 
 def build_image(dist_id, dist_codename, tz):
+    def build_args():
+        args = [
+            f"os={dist_id}",
+            f"os_codename={dist_codename}",
+            f"os_release={DISTRO_RELEASES[dist_codename]}"
+                if dist_codename != "unstable" else None,
+            f"tz={tz}",
+            ]
+        for arg in filter(None, args):
+            yield "--build-arg"
+            yield arg
+
     with chdir(SCRIPT_DIR):
         runproc(
-            "docker", "build",
+            "docker", "build", "--pull",
             "-t", image_name(dist_id, dist_codename),
-            "--build-arg", f"os={dist_id}",
-            "--build-arg", f"os_release={dist_codename}",
-            "--build-arg", f"tz={tz}",
+            *build_args(),
             "."
             )
 
 def add_changelog(version, dist_id, dist_codename, dist_rev):
-    dist_release = DISTRO_RELEASES[dist_codename]
+    version_suffix = ""
+    if dist_codename != "unstable":
+        dist_release = DISTRO_RELEASES[dist_codename]
+        version_suffix = f"~{dist_id}{dist_release}.{dist_rev}"
 
     with chdir(SCRIPT_DIR.parent):
         runproc(
@@ -74,7 +88,7 @@ def add_changelog(version, dist_id, dist_codename, dist_rev):
             )
         runproc(
             "gbp", "dch",
-            "-N", f"{version}~{dist_id}{dist_release}.{dist_rev}",
+            "-N", f"{version}{version_suffix}",
             f"--distribution={dist_codename}",
             "--release",
             "--spawn-editor=never",
