@@ -96,11 +96,11 @@ bool IOHandler::canRead() const
         return false;
     }
 
-    auto format = canReadFrom(*device());
+    auto mimeFormat = canReadFrom(*device());
 
     // Other image plugins set the format here. Not sure if it is really
     // necessary or what it accomplishes.
-    switch (format) {
+    switch (mimeFormat) {
     case Format::Heif:
         setFormat("heif");
         return true;
