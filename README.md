@@ -25,7 +25,8 @@ $ sudo apt install qt-heif-image-plugin
 
 ### Debian
 Packages built against *buster* and *unstable* are provided on the
-[Releases](https://github.com/jakar/qt-heif-image-plugin/releases) page.
+[latest release](https://github.com/jakar/qt-heif-image-plugin/releases/latest)
+page.
 
 ### Other systems
 Users of other systems should build from source.
