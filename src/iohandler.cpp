@@ -23,6 +23,8 @@ namespace qtheifimageplugin {
 
 IOHandler::IOHandler() :
     QImageIOHandler(),
+    _device{nullptr},
+    _readState{nullptr},
     _quality{kDefaultQuality}
 {
     QTHEIFIMAGEPLUGIN_LOG_TRACE("");

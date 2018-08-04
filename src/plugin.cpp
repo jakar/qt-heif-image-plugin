@@ -14,7 +14,7 @@ Plugin::Capabilities Plugin::capabilities(QIODevice* device,
         return {};
     }
 
-    if (device == nullptr) {
+    if (!device) {
         if (formatOK) {
             return CanRead | CanWrite;
         } else {
