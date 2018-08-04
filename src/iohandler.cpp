@@ -232,11 +232,6 @@ bool IOHandler::read(QImage* destImage)
         QTHEIFIMAGEPLUGIN_LOG_TRACE("id: " << id
                                     << ", index: " << _readState->currentIndex);
 
-        if (!_readState->context.is_top_level_image_ID(id)) {
-            log::debug() << "invalid image id: " << id;
-            return false;
-        }
-
         auto handle = _readState->context.get_image_handle(id);
         auto srcImage = handle.decode_image(heif_colorspace_RGB,
                                             heif_chroma_interleaved_RGBA);
@@ -314,10 +309,6 @@ bool IOHandler::jumpToImage(int index)
     }
 
     if (index < 0 || static_cast<size_t>(index) >= _readState->idList.size()) {
-        return false;
-    }
-
-    if (!_readState->context.is_top_level_image_ID(_readState->idList[index])) {
         return false;
     }
 
