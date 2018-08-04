@@ -354,24 +354,24 @@ bool IOHandler::write(const QImage& preConvSrcImage)
         return false;
     }
 
-    QImage srcImage = preConvSrcImage.convertToFormat(QImage::Format_RGBA8888);
+    const QImage srcImage =
+        preConvSrcImage.convertToFormat(QImage::Format_RGBA8888);
 
-    if (srcImage.isNull()) {
+    const QSize size = srcImage.size();
+
+    if (srcImage.isNull() || !size.isValid()) {
         log::warning() << "source image format conversion failed";
         return false;
     }
 
     try {
-        int width = srcImage.width();
-        int height = srcImage.height();
-
         heif::Image destImage{};
-        destImage.create(width, height,
+        destImage.create(size.width(), size.height(),
                          heif_colorspace_RGB,
                          heif_chroma_interleaved_RGBA);
 
         auto channel = heif_channel_interleaved;
-        destImage.add_plane(channel, width, height, 32);
+        destImage.add_plane(channel, size.width(), size.height(), 32);
 
         int destStride = 0;
         uint8_t* destData = destImage.get_plane(channel, &destStride);
@@ -403,7 +403,7 @@ bool IOHandler::write(const QImage& preConvSrcImage)
         }
 
         // copy rgba data
-        for (int y = 0; y < height; ++y) {
+        for (int y = 0; y < size.height(); ++y) {
             auto* srcBegin = srcData + y * srcStride;
             auto* srcEnd = srcBegin + srcStride;
             std::copy(srcBegin, srcEnd, destData + y * destStride);
