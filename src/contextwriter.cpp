@@ -2,7 +2,7 @@
 
 #include "log.h"
 
-#include <cstdint>
+#include <type_traits>
 
 namespace qtheifimageplugin {
 
@@ -13,9 +13,13 @@ ContextWriter::ContextWriter(QIODevice& device) :
 
 heif_error ContextWriter::write(const void* data, size_t size)
 {
-    auto bytesWritten = _device.write(static_cast<const char*>(data), size);
+    qint64 bytesWritten = _device.write(static_cast<const char*>(data), size);
 
-    if (bytesWritten != static_cast<int64_t>(size)) {
+    using I = typename std::conditional<sizeof(size_t) >= sizeof(qint64),
+                                        size_t,
+                                        qint64>::type;
+
+    if (bytesWritten < 0 || static_cast<I>(bytesWritten) != static_cast<I>(size)) {
         log::warning() << "write failed: "
             << bytesWritten << " / " << size << " bytes written";
 
