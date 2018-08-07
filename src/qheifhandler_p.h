@@ -37,36 +37,86 @@
 **
 ****************************************************************************/
 
-#include "contextwriter_p.h"
+#ifndef QHEIFHANDLER_P_H
+#define QHEIFHANDLER_P_H
 
-#include <type_traits>
+#include <libheif/heif_cxx.h>
 
-ContextWriter::ContextWriter(QIODevice& device) :
-    _device(device)
+#include <QtCore/QIODevice>
+#include <QtGui/QImageIOHandler>
+#include <QtCore/QSize>
+
+#include <memory>
+#include <vector>
+
+class QHeifHandler : public QImageIOHandler
 {
-}
-
-heif_error ContextWriter::write(const void* data, size_t size)
-{
-    qint64 bytesWritten = _device.write(static_cast<const char*>(data), size);
-
-    using I = typename std::conditional<sizeof(size_t) >= sizeof(qint64),
-                                        size_t,
-                                        qint64>::type;
-
-    if (bytesWritten < 0 || static_cast<I>(bytesWritten) != static_cast<I>(size)) {
-        qWarning("ContextWriter::write() write failed: %lld / %zu bytes written", bytesWritten, size);
-
-        return {
-            heif_error_Encoding_error,
-            heif_suberror_Cannot_write_output_data,
-            "write failed"
-        };
-    }
-
-    return {
-        heif_error_Ok,
-        heif_suberror_Unspecified,
-        "ok"
+public:
+    enum class Format
+    {
+        None,
+        Heif,
+        HeifSequence,
+        Heic,
+        HeicSequence,
     };
-}
+
+    explicit QHeifHandler();
+    virtual ~QHeifHandler();
+
+    QHeifHandler(const QHeifHandler& handler) = delete;
+    QHeifHandler& operator=(const QHeifHandler& handler) = delete;
+
+    bool canRead() const override;
+    bool read(QImage* image) override;
+
+    bool write(const QImage& image) override;
+
+    int currentImageNumber() const override;
+    int imageCount() const override;
+    bool jumpToImage(int index) override;
+    bool jumpToNextImage() override;
+
+    QVariant option(ImageOption opt) const override;
+    void setOption(ImageOption opt, const QVariant& value) override;
+    bool supportsOption(ImageOption opt) const override;
+
+    static Format canReadFrom(QIODevice& device);
+
+private:
+    struct ReadState
+    {
+        ReadState(QByteArray&& data,
+                  heif::Context&& ctx,
+                  std::vector<heif_item_id>&& ids,
+                  int index);
+
+        const QByteArray fileData;
+        const heif::Context context;
+        const std::vector<heif_item_id> idList;
+        int currentIndex{};
+    };
+
+    /**
+     * Updates device and associated state upon device change.
+     */
+    void updateDevice();
+
+    /**
+     * Reads data from device. Creates read state.
+     * Throws heif::Error.
+     */
+    void loadContext();
+
+    //
+    // Private data
+    //
+
+    QIODevice* _device = nullptr;
+
+    std::unique_ptr<ReadState> _readState;  // non-null iff context is loaded
+
+    int _quality;
+};
+
+#endif  // QHEIFHANDLER_P_H

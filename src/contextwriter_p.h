@@ -37,36 +37,24 @@
 **
 ****************************************************************************/
 
-#include "contextwriter_p.h"
+#ifndef CONTEXTWRITER_P_H
+#define CONTEXTWRITER_P_H
 
-#include <type_traits>
+#include <libheif/heif_cxx.h>
 
-ContextWriter::ContextWriter(QIODevice& device) :
-    _device(device)
+#include <QtCore/QIODevice>
+
+class ContextWriter : public heif::Context::Writer
 {
-}
+public:
+    explicit ContextWriter(QIODevice& device);
 
-heif_error ContextWriter::write(const void* data, size_t size)
-{
-    qint64 bytesWritten = _device.write(static_cast<const char*>(data), size);
+    virtual ~ContextWriter() = default;
 
-    using I = typename std::conditional<sizeof(size_t) >= sizeof(qint64),
-                                        size_t,
-                                        qint64>::type;
+    heif_error write(const void* data, size_t size) override;
 
-    if (bytesWritten < 0 || static_cast<I>(bytesWritten) != static_cast<I>(size)) {
-        qWarning("ContextWriter::write() write failed: %lld / %zu bytes written", bytesWritten, size);
+private:
+    QIODevice& _device;
+};
 
-        return {
-            heif_error_Encoding_error,
-            heif_suberror_Cannot_write_output_data,
-            "write failed"
-        };
-    }
-
-    return {
-        heif_error_Ok,
-        heif_suberror_Unspecified,
-        "ok"
-    };
-}
+#endif  // CONTEXTWRITER_P_H

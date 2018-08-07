@@ -37,36 +37,72 @@
 **
 ****************************************************************************/
 
-#include "contextwriter_p.h"
+#include <qimageiohandler.h>
+#include <qstringlist.h>
 
-#include <type_traits>
+#ifndef QT_NO_IMAGEFORMATPLUGIN
 
-ContextWriter::ContextWriter(QIODevice& device) :
-    _device(device)
+#ifdef QT_NO_IMAGEFORMAT_WEBP
+#undef QT_NO_IMAGEFORMAT_WEBP
+#endif
+#include "qheifhandler_p.h"
+
+#include <qiodevice.h>
+#include <qbytearray.h>
+
+QT_BEGIN_NAMESPACE
+
+class QHeifPlugin : public QImageIOPlugin
 {
-}
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QImageIOHandlerFactoryInterface" FILE "heif.json")
 
-heif_error ContextWriter::write(const void* data, size_t size)
+public:
+    Capabilities capabilities(QIODevice *device, const QByteArray &format) const override;
+    QImageIOHandler *create(QIODevice *device, const QByteArray &format = QByteArray()) const override;
+};
+
+QHeifPlugin::Capabilities QHeifPlugin::capabilities(QIODevice *device, const QByteArray &format) const
 {
-    qint64 bytesWritten = _device.write(static_cast<const char*>(data), size);
+    const bool formatOK = (format == "heic" || format == "heics"
+                           || format == "heif" || format == "heifs");
 
-    using I = typename std::conditional<sizeof(size_t) >= sizeof(qint64),
-                                        size_t,
-                                        qint64>::type;
-
-    if (bytesWritten < 0 || static_cast<I>(bytesWritten) != static_cast<I>(size)) {
-        qWarning("ContextWriter::write() write failed: %lld / %zu bytes written", bytesWritten, size);
-
-        return {
-            heif_error_Encoding_error,
-            heif_suberror_Cannot_write_output_data,
-            "write failed"
-        };
+    if (!formatOK && !format.isEmpty()) {
+        return {};
     }
 
-    return {
-        heif_error_Ok,
-        heif_suberror_Unspecified,
-        "ok"
-    };
+    if (!device) {
+        if (formatOK) {
+            return CanRead | CanWrite;
+        } else {
+            return {};
+        }
+    }
+
+    using F = QHeifHandler::Format;
+    Capabilities caps{};
+
+    if (device->isReadable() && QHeifHandler::canReadFrom(*device) != F::None) {
+        caps |= CanRead;
+    }
+
+    if (device->isWritable()) {
+        caps |= CanWrite;
+    }
+
+    return caps;
 }
+
+QImageIOHandler *QHeifPlugin::create(QIODevice *device, const QByteArray &format) const
+{
+    QImageIOHandler *handler = new QHeifHandler;
+    handler->setDevice(device);
+    handler->setFormat(format);
+    return handler;
+}
+
+QT_END_NAMESPACE
+
+#include "main.moc"
+
+#endif // !QT_NO_IMAGEFORMATPLUGIN
