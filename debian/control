@@ -3,7 +3,7 @@ Priority: optional
 Maintainer: Jake Harr <jakeharr@gmail.com>
 Build-Depends: debhelper (>= 9),
     cmake (>= 3.5) | cmake3 (>= 3.5),
-    libheif-dev (>= 1.2),
+    libheif-dev (>= 1.1),
     pkg-config,
     qtbase5-dev,
 Standards-Version: 3.9.8

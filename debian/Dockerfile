@@ -14,7 +14,7 @@ RUN set -ex; \
     ln -snf "/usr/share/zoneinfo/${tz}" /etc/localtime; \
     echo "${tz}" > /etc/timezone; \
     apt-get update; \
-    if [ ${os} = ubuntu ] && dpkg --compare-versions "${os_release}" le 18.04; \
+    if [ ${os} = ubuntu ] && dpkg --compare-versions "${os_release}" le 16.04; \
     then \
       apt-get install -y software-properties-common; \
       add-apt-repository -y ppa:strukturag/libheif; \
