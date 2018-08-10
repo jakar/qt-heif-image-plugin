@@ -45,7 +45,7 @@ set(CMAKE_AUTOMOC ON)
 
 # libheif
 find_package(PkgConfig)
-pkg_check_modules(libheif REQUIRED libheif>=1.2)
+pkg_check_modules(libheif REQUIRED libheif>=1.1)
 
 #
 # project source
@@ -53,7 +53,7 @@ pkg_check_modules(libheif REQUIRED libheif>=1.2)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-set(sources contextwriter.cpp main.cpp qheifhandler.cpp)
+set(sources main.cpp qheifhandler.cpp)
 
 add_library(qheif MODULE ${sources})
 

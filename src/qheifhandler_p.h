@@ -40,11 +40,10 @@
 #ifndef QHEIFHANDLER_P_H
 #define QHEIFHANDLER_P_H
 
-#include <libheif/heif_cxx.h>
+#include <libheif/heif.h>
 
 #include <QtCore/QIODevice>
 #include <QtGui/QImageIOHandler>
-#include <QtCore/QSize>
 
 #include <memory>
 #include <vector>
@@ -87,12 +86,12 @@ private:
     struct ReadState
     {
         ReadState(QByteArray&& data,
-                  heif::Context&& ctx,
+                  std::shared_ptr<heif_context>&& ctx,
                   std::vector<heif_item_id>&& ids,
                   int index);
 
         const QByteArray fileData;
-        const heif::Context context;
+        const std::shared_ptr<heif_context> context;
         const std::vector<heif_item_id> idList;
         int currentIndex{};
     };
@@ -104,7 +103,6 @@ private:
 
     /**
      * Reads data from device. Creates read state.
-     * Throws heif::Error.
      */
     void loadContext();
 

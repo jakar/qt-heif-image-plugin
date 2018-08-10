@@ -1,7 +1,7 @@
 TARGET  = qheif
 
-HEADERS += qheifhandler_p.h contextwriter_p.h
-SOURCES += main.cpp qheifhandler.cpp contextwriter.cpp
+HEADERS += qheifhandler_p.h
+SOURCES += main.cpp qheifhandler.cpp
 OTHER_FILES += heif.json
 
 config_libheif {
