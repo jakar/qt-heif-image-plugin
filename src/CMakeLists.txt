@@ -48,27 +48,17 @@ find_package(PkgConfig)
 pkg_check_modules(libheif REQUIRED libheif>=1.2)
 
 #
-# logging
-#
-
-set(QTHEIFIMAGEPLUGIN_ENABLE_TRACE OFF CACHE BOOL "Enable trace logging")
-
-if (${QTHEIFIMAGEPLUGIN_ENABLE_TRACE})
-  add_definitions(-DQTHEIFIMAGEPLUGIN_ENABLE_TRACE)
-endif ()
-
-#
 # project source
 #
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-set(sources contextwriter.cpp iohandler.cpp plugin.cpp)
+set(sources contextwriter.cpp main.cpp qheifhandler.cpp)
 
-add_library(qtheifimageplugin MODULE ${sources})
+add_library(qheif MODULE ${sources})
 
 target_link_libraries(
-  qtheifimageplugin
+  qheif
   PRIVATE
   Qt5::Gui
   ${libheif_LIBRARIES}
@@ -105,7 +95,7 @@ else ()
 endif ()
 
 install(
-  TARGETS qtheifimageplugin
+  TARGETS qheif
   LIBRARY DESTINATION "${plugins_dir}/imageformats")
 
 # vim:sw=2
