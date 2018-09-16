@@ -10,6 +10,14 @@ Currently, support is limited to the following:
 * Basic reading and writing of the primary image
 * Reading of files with multiple top-level images
 
+***Note:*** This plugin is currently in progress for inclusion in
+qtimageformats. Please see the Qt [Gerrit page] or [bug report] for updates.
+Contributions should be made there, if possible. I will try to keep this
+repository up to date.
+
+[Gerrit page]: https://codereview.qt-project.org/236077
+[bug report]: https://bugreports.qt.io/browse/QTBUG-69212
+
 ## Installation
 ### Ubuntu
 A [PPA exists](https://launchpad.net/~jakar/+archive/ubuntu/qt-heif) for Ubuntu
