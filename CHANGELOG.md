@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.3 - 2018-09-16
+- Refactored for qtimageformats.
+- Removed usage of C++ exceptions.
+- Reduced libheif requirement to version 1.1.
+
 ## 0.3.2 - 2018-07-23
 - Fixed error when building against older Qt.
 - Minor code cleanup.
