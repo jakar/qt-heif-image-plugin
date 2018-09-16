@@ -38,7 +38,6 @@ QHeifHandler::QHeifHandler() :
     _readState{nullptr},
     _quality{kDefaultQuality}
 {
-    qDebug("QHeifHandler!");
 }
 
 QHeifHandler::~QHeifHandler()
