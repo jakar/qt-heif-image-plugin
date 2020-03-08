@@ -35,6 +35,14 @@ Packages built against *buster* and *unstable* are provided on the
 [latest release](https://github.com/jakar/qt-heif-image-plugin/releases/latest)
 page.
 
+### Fedora
+Package is available in the RPM Fusion free repository.
+To install it you need to enable RPM Fusion repo first - see [Enable RPM Fusion on your system](https://rpmfusion.org/Configuration).
+Then it can be installed with following command:
+```
+$ sudo dnf install qt-heif-image-plugin
+```
+
 ### Other systems
 Users of other systems should build from source.
 
