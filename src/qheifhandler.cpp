@@ -288,13 +288,31 @@ bool QHeifHandler::read(QImage* destImage)
         qWarning("QHeifHandler::read() invalid stride: %d", stride);
         return false;
     }
+    
+    // map image format
+    heif_chroma heifFormat = heif_image_get_chroma_format(srcImage.get());
+    QImage::Format qtFormat;
 
+    switch (heifFormat) {
+    case heif_chroma_interleaved_RGB: {
+        qtFormat = QImage::Format_RGB888;
+        break;
+    }
+    case heif_chroma_interleaved_RGBA: {
+        qtFormat = QImage::Format_RGBA8888;
+        break;
+    }
+    // TODO: add other formats i.e. heif_chroma_monochrome  here
+    default:
+        qtFormat = QImage::Format_RGBA8888;
+    }
+    
     // move data ownership to QImage
     heif_image* dataImage = srcImage.release();
 
     *destImage = QImage(
         data, imgSize.width(), imgSize.height(),
-        stride, QImage::Format_RGBA8888,
+        stride, qtFormat,
         [](void* img) { heif_image_release(static_cast<heif_image*>(img)); },
         dataImage
     );
