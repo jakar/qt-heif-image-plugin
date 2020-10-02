@@ -44,8 +44,7 @@ add_definitions(-DQT_NO_KEYWORDS)
 set(CMAKE_AUTOMOC ON)
 
 # libheif
-find_package(PkgConfig)
-pkg_check_modules(libheif REQUIRED libheif>=1.1)
+find_package(libheif 1.1 CONFIG REQUIRED)
 
 #
 # project source
