@@ -68,7 +68,7 @@ target_link_libraries(
   ${libheif_LIBRARIES}
 )
 
-target_include_directories(qheif PRIVATE ${libheif_INCLUDE_DIRS})target_include_directories(qheif PRIVATE ${libheif_INCLUDE_DIRS})
+target_include_directories(qheif PRIVATE ${libheif_INCLUDE_DIRS})
 
 #
 # installation
