@@ -88,6 +88,8 @@ QHeifHandler::Format QHeifHandler::canReadFrom(QIODevice& device)
         return Format::Heic;
     } else if (w2 == "hevc" || w2 == "hevx") {
         return Format::HeicSequence;
+    } else if (w2 == "avif") {
+        return Format::Avif;
     } else {
         return Format::None;
     }
@@ -118,6 +120,10 @@ bool QHeifHandler::canRead() const
 
     case Format::HeicSequence:
         setFormat("heics");
+        return true;
+
+    case Format::Avif:
+        setFormat("avif");
         return true;
 
     default:
@@ -306,16 +312,12 @@ bool QHeifHandler::read(QImage* destImage)
     default:
         qtFormat = QImage::Format_RGBA8888;
     }
-    
-    // move data ownership to QImage
-    heif_image* dataImage = srcImage.release();
 
+    // libheif can return images with odd strides (that OpenGL cannot handle), a single
+    // copy is needed to fix the strides. it also simplifies the ownership model.
     *destImage = QImage(
         data, imgSize.width(), imgSize.height(),
-        stride, qtFormat,
-        [](void* img) { heif_image_release(static_cast<heif_image*>(img)); },
-        dataImage
-    );
+        stride, qtFormat).copy();
 
     return true;
 }

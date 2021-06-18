@@ -39,6 +39,7 @@ public:
         HeifSequence,
         Heic,
         HeicSequence,
+        Avif,
     };
 
     explicit QHeifHandler();
