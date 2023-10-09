@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.3.4 - 2023-10-08
+- Added support for loading RGB888 HEIF images.
+
 ## 0.3.3 - 2018-09-16
 - Refactored for qtimageformats.
 - Removed usage of C++ exceptions.
