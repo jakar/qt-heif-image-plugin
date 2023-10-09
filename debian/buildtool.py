@@ -16,6 +16,8 @@ DISTRO_RELEASES = {
     # debian releases
     "stretch": "9",
     "buster": "10",
+    "bullseye": "11",
+    "bookworm": "12",
     # ubuntu releases
     "trusty": "14.04",
     "xenial": "16.04",
