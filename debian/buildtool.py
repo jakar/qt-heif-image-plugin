@@ -53,6 +53,8 @@ def run_container(dist_id, dist_codename, key_dir, sign_only):
         "-v", f"{abs_key_dir}:/var/debkeys",
         "-v", f"{SCRIPT_DIR.parent.parent}:/src",
         "-e", f"plugin_dir={SCRIPT_DIR.parent.name}",
+        "-e", "DEBEMAIL",
+        "-e", "EMAIL",
         image_name(dist_id, dist_codename),
         *cmd_args,
         )
