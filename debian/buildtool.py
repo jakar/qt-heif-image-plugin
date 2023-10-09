@@ -22,6 +22,8 @@ DISTRO_RELEASES = {
     "bionic": "18.04",
     "cosmic": "18.10",
     "disco": "19.04",
+    "focal": "20.04",
+    "jammy": "22.04",
     }
 
 SCRIPT_DIR = Path(__file__).resolve().parent
