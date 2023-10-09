@@ -17,6 +17,7 @@ endif ()
 
 # compiler flags
 # TODO: separate GCC and Clang warnings; add more
+if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
 set(
   CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} \
   -Wall \
@@ -26,6 +27,7 @@ set(
   -Wformat-security \
   -Wnon-virtual-dtor \
   ")
+endif(CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
 
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Og")
 
@@ -55,6 +57,8 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 set(sources main.cpp qheifhandler.cpp)
 
+link_directories(${libheif_LIBRARY_DIRS})
+
 add_library(qheif MODULE ${sources})
 
 target_link_libraries(
@@ -63,6 +67,8 @@ target_link_libraries(
   Qt5::Gui
   ${libheif_LIBRARIES}
 )
+
+target_include_directories(qheif PRIVATE ${libheif_INCLUDE_DIRS})
 
 #
 # installation
