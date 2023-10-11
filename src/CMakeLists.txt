@@ -17,23 +17,28 @@ endif ()
 
 # compiler flags
 # TODO: separate GCC and Clang warnings; add more
-set(
-  CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} \
-  -Wall \
-  -Wextra \
-  -Wshadow \
-  -Wformat-nonliteral \
-  -Wformat-security \
-  -Wnon-virtual-dtor \
-  ")
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+  # compiler flags for MSVC
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
+else ()
+  # compiler flags for GCC/Clang
+  set(
+    CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} \
+    -Wall \
+    -Wextra \
+    -Wshadow \
+    -Wformat-nonliteral \
+    -Wformat-security \
+    -Wnon-virtual-dtor \
+    ")
 
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Og")
+  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Og")
 
-set(sanitizer_flags "-fsanitize=address -fsanitize=undefined")
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${sanitizer_flags}")
-set(CMAKE_MODULE_LINKER_FLAGS_DEBUG
-    "${CMAKE_MODULE_LINKER_FLAGS_DEBUG} ${sanitizer_flags}")
-
+  set(sanitizer_flags "-fsanitize=address -fsanitize=undefined")
+  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${sanitizer_flags}")
+  set(CMAKE_MODULE_LINKER_FLAGS_DEBUG
+      "${CMAKE_MODULE_LINKER_FLAGS_DEBUG} ${sanitizer_flags}")
+endif()
 #
 # third-party libs
 #
@@ -56,6 +61,9 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(sources main.cpp qheifhandler.cpp)
 
 add_library(qheif MODULE ${sources})
+
+target_include_directories(qheif PRIVATE ${libheif_INCLUDE_DIRS})
+target_link_directories(qheif PRIVATE ${libheif_LIBRARY_DIRS})
 
 target_link_libraries(
   qheif
